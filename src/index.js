@@ -5,7 +5,7 @@ import Login from './components/Login';
 import NotFound from './components/NotFound';
 import Users from './components/Users';
 import ConversationPanel from './components/ConversationPanel';
-import { BrowserRouter, Route, Link, Switch  } from 'react-router-dom';
+import { BrowserRouter, Route, Link, Switch, browserHistory  } from 'react-router-dom';
 import './index.css';
 
 const Root = () => {
