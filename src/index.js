@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/App';
+import Login from './components/Login';
 import NotFound from './components/NotFound';
 import Users from './components/Users';
 import ConversationPanel from './components/ConversationPanel';
@@ -12,12 +13,14 @@ const Root = () => {
 		<BrowserRouter>
 			<div>
 				<ul>
-					<li><Link to="/">Conversation</Link></li>
+					<li><Link to="/">Home</Link></li>
+					<li><Link to="/conversations">Conversation</Link></li>
 					<li><Link to="/users">Users</Link></li>
 				</ul>
 
 				<Switch>
-					<Route exact path="/" component={ConversationPanel} />
+					<Route exact path="/" component={Login}/>
+					<Route path="/conversations" component={ConversationPanel} />
 					<Route path="/users" component={Users} /> 
 					<Route component={NotFound}/>
 				</Switch>
