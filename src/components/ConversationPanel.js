@@ -1,6 +1,7 @@
 import React from 'react';
 import Login from './Login';
 import Logout from './Logout';
+import ListOfUsers from './ListOfUsers';
 import { Route, Redirect, browserHistory }  from 'react-router';
 
 const renderMergedProps = (component, ...rest) => {
@@ -44,7 +45,7 @@ class ConversationPanel extends React.Component{
 				{logoutButton}
 				<div className="row">
 					<div className="col-3">
-						Here's where the list of users should go
+						<ListOfUsers authToken={this.props.authToken}/>
 					</div>
 					<div className="col-9">
 						This is where I want the conversations to take place

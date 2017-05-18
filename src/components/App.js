@@ -47,10 +47,6 @@ class App extends Component {
       isLoggedIn:null,
       authToken:null
     });
-    // return(
-    //   <Redirect to={'/'}/>
-    // );
-    // this.props.history.push('/');
   }
 
   checkIfLoggedIn(){
