@@ -1,4 +1,5 @@
 import React from 'react';
+import Channel from './Channel';
 import Login from './Login';
 import Logout from './Logout';
 import ListOfUsers from './ListOfUsers';
@@ -48,7 +49,7 @@ class ConversationPanel extends React.Component{
 						<ListOfUsers authToken={this.props.authToken}/>
 					</div>
 					<div className="col-9">
-						This is where I want the conversations to take place
+						<Channel/>
 					</div>
 				</div>
 			</div>
