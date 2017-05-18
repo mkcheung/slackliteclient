@@ -1,5 +1,5 @@
 import React from 'react';
-
+import './channel.css'
 class Channel extends React.Component{
 	render(){
 		return (
