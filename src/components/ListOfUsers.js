@@ -40,7 +40,7 @@ class ListOfUsers extends React.Component{
 				{
 					Object
 					.keys(this.state.users)
-					.map(key => <User key={key} index={key} details={this.state.users[key]}/>)
+					.map(key => <User key={key} index={key} selectChannel={this.props.selectChannel} details={this.state.users[key]}/>)
 				}
 			</ul>
 		)
