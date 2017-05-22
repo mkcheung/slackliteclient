@@ -35,6 +35,11 @@ class Channel extends React.Component{
 		});
 	}
 
+	componentDidUpdate() {
+		const objDiv = document.getElementById('transcript');
+		objDiv.scrollTop = objDiv.scrollHeight;
+	}
+
 	render(){
 		const {details, index} = this.props;
 		return (
@@ -42,7 +47,7 @@ class Channel extends React.Component{
 				<h1>
 					{details.channelName}
 				</h1>
-				<div className='col-12 transcript'>
+				<div className='col-12' id='transcript'>
 					<ul>
 						{
 							Object
