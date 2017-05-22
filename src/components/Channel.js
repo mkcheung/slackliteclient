@@ -1,5 +1,6 @@
 import Message from './Message';
 import React from 'react';
+import ChatInput from './ChatInput';
 import './channel.css'
 
 class Channel extends React.Component{
@@ -58,12 +59,7 @@ class Channel extends React.Component{
 				</div>
 				<div className="row">
 					<div className='col-12'>
-						<input>
-							
-						</input>
-						<button>
-							Send
-						</button>
+						<ChatInput />
 					</div>
 				</div>
 			</div>
