@@ -17,10 +17,13 @@ class Channel extends React.Component{
         	authToken: props.authToken
         	// You can add more information in a static object
     	};
+
+    	// this.submitHandler=this.submitHandler.bind(this);
+
     	this.conn = new WebSocket('ws://localhost:8090');
 
 		this.conn.onopen = function(e) {
-			console.info("Connection established succesfully");
+			console.info("Connection established successfully");
 		};
     	// this.socket = io(config.api).connect();
 
@@ -30,11 +33,23 @@ class Channel extends React.Component{
 	    // });
 	}
 
+
+	// submitHandler(event) {
+	// 	// Stop the form from refreshing the page on submit
+	// 	event.preventDefault();
+
+	// 	// Call the onSend callback with the chatInput message
+	// 	this.conn.send(this.chatText.chatInput);
+
+	// 	// Clear the input box
+	// 	this.setState({ chatInput: '' });
+	// }
+
 	componentWillMount(){
 
-		this.conn.onmessage = function (event) {
-		  console.log(event.data);
-		}
+		// this.conn.onmessage = function (event) {
+		//   console.log(event.data);
+		// }
 		// var url = 'http://localhost:8000/messages/getMessagesInChannel';
 		// return fetch(url, {
 		//   method: 'POST',
@@ -81,7 +96,7 @@ class Channel extends React.Component{
 				</div>
 				<div className="row">
 					<div className='col-12'>
-						<ChatInput />
+						<ChatInput conn={this.conn} index={this.props.index} authToken={this.props.authToken} submitHandler={this.submitHandler} />
 					</div>
 				</div>
 			</div>

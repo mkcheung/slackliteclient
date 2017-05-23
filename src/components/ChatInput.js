@@ -1,6 +1,5 @@
 import Message from './Message';
 import React from 'react';
-import io from 'socket.io-client';
 import './channel.css'
 
 class ChatInput extends React.Component{
@@ -25,9 +24,12 @@ class ChatInput extends React.Component{
 	submitHandler(event) {
 		// Stop the form from refreshing the page on submit
 		event.preventDefault();
-
 		// Call the onSend callback with the chatInput message
-		this.props.onSend(this.state.chatInput);
+		this.props.conn.send(JSON.stringify({
+			channelId:this.props.index,
+			authToken:this.props.authToken,
+			message:this.chatText.value
+		}));
 
 		// Clear the input box
 		this.setState({ chatInput: '' });
@@ -40,6 +42,7 @@ class ChatInput extends React.Component{
 					onChange={this.textChangeHandler}
 					value={this.state.chatInput}
 					placeholder="Write a message..."
+					ref={(input) => { this.chatText = input}}
 					required
 				/>
 			</form>
