@@ -12,27 +12,45 @@ class Channel extends React.Component{
 		super(props);
 		this.state = {
 			messages:[]
-		}    // Connect to the server
-		this.clientInformation = {
-        	authToken: props.authToken
-        	// You can add more information in a static object
-    	};
+		};    
 
-    	// this.submitHandler=this.submitHandler.bind(this);
+  		this.openConnection = this.openConnection.bind(this);
+  		this.updateMessages = this.updateMessages.bind(this);
 
     	this.conn = new WebSocket('ws://localhost:8090');
-
-		this.conn.onopen = function(e) {
-			console.info("Connection established successfully");
-		};
-    	// this.socket = io(config.api).connect();
-
-	    // // Listen for messages from the server
-	    // this.socket.on('server:message', message => {
-	    //   this.addMessage(message);
-	    // });
 	}
 
+	openConnection(event) {
+		var url = 'http://localhost:8000/messages/getMessagesInChannel';
+		return fetch(url, {
+		  method: 'POST',
+		  headers: {
+		    'Authorization': this.props.authToken,
+		    'Content-Type': 'application/json'
+		  },
+		  body: JSON.stringify({
+		    channel_id: this.props.index
+		  })
+		})
+		.then((response) => response.json())
+		.then((responseJson) => {
+			this.setState({
+				messages:responseJson.messages
+			});
+      	})
+		.catch((error) => {
+			console.log(error);
+		});
+		console.info("Connection established successfully");
+	};
+
+	updateMessages(key, updatedMessage){
+		const messages = {...this.state.messages};
+		messages[key] = updatedMessage;
+		this.setState({
+			messages
+		});
+	}
 
 	// submitHandler(event) {
 	// 	// Stop the form from refreshing the page on submit
@@ -46,31 +64,7 @@ class Channel extends React.Component{
 	// }
 
 	componentWillMount(){
-
-		// this.conn.onmessage = function (event) {
-		//   console.log(event.data);
-		// }
-		// var url = 'http://localhost:8000/messages/getMessagesInChannel';
-		// return fetch(url, {
-		//   method: 'POST',
-		//   headers: {
-		//     'Authorization': this.props.authToken,
-		//     'Content-Type': 'application/json'
-		//   },
-		//   body: JSON.stringify({
-		//     channel_id: this.props.index
-		//   })
-		// })
-		// .then((response) => response.json())
-		// .then((responseJson) => {
-		// 	this.setState({
-		// 		messages:responseJson.messages
-		// 	});
-  //     	})
-		// .catch((error) => {
-		// 	console.log(error);
-		// 	console.error(error);
-		// });
+		this.conn.onopen = this.openConnection();
 	}
 
 	// componentDidUpdate() {
@@ -96,7 +90,12 @@ class Channel extends React.Component{
 				</div>
 				<div className="row">
 					<div className='col-12'>
-						<ChatInput conn={this.conn} index={this.props.index} authToken={this.props.authToken} submitHandler={this.submitHandler} />
+						<ChatInput 
+							conn={this.conn} 
+							index={this.props.index} 
+							authToken={this.props.authToken} 
+							submitHandler={this.submitHandler}
+							updateMessages={this.updateMessages} />
 					</div>
 				</div>
 			</div>

@@ -22,11 +22,12 @@ const PropsRoute = ({ component, ...rest }) => {
 
 class ConversationPanel extends React.Component{
 
-	constructor(){
-		super();
+	constructor(props){
+		super(props);
 		this.state={
-			channel:{}
-		}
+			channel:[],
+
+		};
 		this.selectChannel=this.selectChannel.bind(this);
 		this.logoutAndRedirect=this.logoutAndRedirect.bind(this);
 	}
@@ -64,7 +65,6 @@ class ConversationPanel extends React.Component{
       	})
 		.catch((error) => {
 			console.log(error);
-			console.error(error);
 		});
 	}
 

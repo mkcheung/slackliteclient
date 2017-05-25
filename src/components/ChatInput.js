@@ -31,6 +31,10 @@ class ChatInput extends React.Component{
 			message:this.chatText.value
 		}));
 
+	// this.props.updateFish(key, updated);
+		// messagesList.innerHTML += '<li class="sent"><span>Sent:</span>' + message +
+                            // '</li>';
+
 		// Clear the input box
 		this.setState({ chatInput: '' });
 	}
