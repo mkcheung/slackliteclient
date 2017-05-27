@@ -15,6 +15,7 @@ class Channel extends React.Component{
 		};    
 
   		this.openConnection = this.openConnection.bind(this);
+  		this.addMessage = this.addMessage.bind(this);
   		this.updateMessages = this.updateMessages.bind(this);
 
     	this.conn = new WebSocket('ws://localhost:8090');
@@ -52,16 +53,26 @@ class Channel extends React.Component{
 		});
 	}
 
-	// submitHandler(event) {
-	// 	// Stop the form from refreshing the page on submit
-	// 	event.preventDefault();
-
-	// 	// Call the onSend callback with the chatInput message
-	// 	this.conn.send(this.chatText.chatInput);
-
-	// 	// Clear the input box
-	// 	this.setState({ chatInput: '' });
-	// }
+	addMessage(key, message) {
+		const messages = {...this.state.messages};
+		messages[key] = message;
+		this.setState({messages: messages});
+	}
+	
+    componentDidMount() {    
+        var that = this;
+        this.conn.onmessage = function (e) {
+            var jsonData = JSON.parse(e.data);
+            var incomingMessage = (jsonData.messages[0]);
+            console.log(incomingMessage);
+			const message={
+				sender: incomingMessage.sender,
+				created_at: incomingMessage.created_at,
+				message: incomingMessage.message
+			}
+			that.addMessage(incomingMessage.message_id, message);
+        };
+    }
 
 	componentWillMount(){
 		this.conn.onopen = this.openConnection();
