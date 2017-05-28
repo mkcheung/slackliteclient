@@ -62,8 +62,8 @@ class Channel extends React.Component{
 	
     componentDidMount() {    
         var that = this;
-        this.conn.onmessage = function (e) {
-            var jsonData = JSON.parse(e.data);
+        this.conn.onmessage = (event) => {
+            var jsonData = JSON.parse(event.data);
             var incomingMessage = (jsonData.messages[0]);
 			const message={
 				sender: incomingMessage.sender,
@@ -96,9 +96,7 @@ class Channel extends React.Component{
 				<h1>
 					{details.channelName}
 				</h1>
-				<div className='col-12' id='transcript' ref={(div) => {
-          this.transcript = div;
-        }}>
+				<div className='col-12' id='transcript' ref={(div) => {this.transcript = div;}}>
 					<ul>
 						{
 							Object
