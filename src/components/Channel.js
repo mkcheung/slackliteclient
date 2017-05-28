@@ -17,6 +17,7 @@ class Channel extends React.Component{
   		this.openConnection = this.openConnection.bind(this);
   		this.addMessage = this.addMessage.bind(this);
   		this.updateMessages = this.updateMessages.bind(this);
+  		this.scrollToBottom = this.scrollToBottom.bind(this);
 
     	this.conn = new WebSocket('ws://localhost:8090');
 	}
@@ -64,7 +65,6 @@ class Channel extends React.Component{
         this.conn.onmessage = function (e) {
             var jsonData = JSON.parse(e.data);
             var incomingMessage = (jsonData.messages[0]);
-            console.log(incomingMessage);
 			const message={
 				sender: incomingMessage.sender,
 				created_at: incomingMessage.created_at,
@@ -78,10 +78,16 @@ class Channel extends React.Component{
 		this.conn.onopen = this.openConnection();
 	}
 
-	// componentDidUpdate() {
-	// 	const objDiv = document.getElementById('transcript');
-	// 	objDiv.scrollTop = objDiv.scrollHeight;
-	// }
+	componentDidUpdate() {
+		this.scrollToBottom();
+	}
+
+	scrollToBottom() {
+		const scrollHeight = this.transcript.scrollHeight;
+		const height = this.transcript.clientHeight;
+		const maxScrollTop = scrollHeight - height;
+		this.transcript.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
+	}
 
 	render(){
 		const {details, index} = this.props;
@@ -90,7 +96,9 @@ class Channel extends React.Component{
 				<h1>
 					{details.channelName}
 				</h1>
-				<div className='col-12' id='transcript'>
+				<div className='col-12' id='transcript' ref={(div) => {
+          this.transcript = div;
+        }}>
 					<ul>
 						{
 							Object
