@@ -1,17 +1,28 @@
 import Message from './Message';
 import React from 'react';
+import ChatInput from './ChatInput';
+// import io from 'socket.io-client';
+import config from '../config/config';
 import './channel.css'
 
 class Channel extends React.Component{
 	
-	constructor(){
-		super();
+	socket = {};
+	constructor(props){
+		super(props);
 		this.state = {
 			messages:[]
-		}
+		};    
+
+  		this.openConnection = this.openConnection.bind(this);
+  		this.addMessage = this.addMessage.bind(this);
+  		this.updateMessages = this.updateMessages.bind(this);
+  		this.scrollToBottom = this.scrollToBottom.bind(this);
+
+    	this.conn = new WebSocket('ws://localhost:8090');
 	}
 
-	componentWillMount(){
+	openConnection(event) {
 		var url = 'http://localhost:8000/messages/getMessagesInChannel';
 		return fetch(url, {
 		  method: 'POST',
@@ -31,8 +42,51 @@ class Channel extends React.Component{
       	})
 		.catch((error) => {
 			console.log(error);
-			console.error(error);
 		});
+		console.info("Connection established successfully");
+	};
+
+	updateMessages(key, updatedMessage){
+		const messages = {...this.state.messages};
+		messages[key] = updatedMessage;
+		this.setState({
+			messages
+		});
+	}
+
+	addMessage(key, message) {
+		const messages = {...this.state.messages};
+		messages[key] = message;
+		this.setState({messages: messages});
+	}
+	
+    componentDidMount() {    
+        var that = this;
+        this.conn.onmessage = function (e) {
+            var jsonData = JSON.parse(e.data);
+            var incomingMessage = (jsonData.messages[0]);
+			const message={
+				sender: incomingMessage.sender,
+				created_at: incomingMessage.created_at,
+				message: incomingMessage.message
+			}
+			that.addMessage(incomingMessage.message_id, message);
+        };
+    }
+
+	componentWillMount(){
+		this.conn.onopen = this.openConnection();
+	}
+
+	componentDidUpdate() {
+		this.scrollToBottom();
+	}
+
+	scrollToBottom() {
+		const scrollHeight = this.transcript.scrollHeight;
+		const height = this.transcript.clientHeight;
+		const maxScrollTop = scrollHeight - height;
+		this.transcript.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
 	}
 
 	render(){
@@ -42,7 +96,9 @@ class Channel extends React.Component{
 				<h1>
 					{details.channelName}
 				</h1>
-				<div className='col-12 transcript'>
+				<div className='col-12' id='transcript' ref={(div) => {
+          this.transcript = div;
+        }}>
 					<ul>
 						{
 							Object
@@ -53,12 +109,12 @@ class Channel extends React.Component{
 				</div>
 				<div className="row">
 					<div className='col-12'>
-						<input>
-							
-						</input>
-						<button>
-							Send
-						</button>
+						<ChatInput 
+							conn={this.conn} 
+							index={this.props.index} 
+							authToken={this.props.authToken} 
+							submitHandler={this.submitHandler}
+							updateMessages={this.updateMessages} />
 					</div>
 				</div>
 			</div>
