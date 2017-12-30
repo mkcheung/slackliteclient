@@ -5,7 +5,7 @@ class User extends React.Component{
 		const {details, index} = this.props;
 		return(
 			<li className="list-group-item" onClick={() => this.props.selectChannel(index)} >
-				{details.username}
+				{details.email}
 			</li>
 		);
 	}

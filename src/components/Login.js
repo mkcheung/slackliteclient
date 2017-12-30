@@ -36,8 +36,8 @@ class Login extends React.Component {
 						<form onSubmit={this.handleSubmit}>
 							<br/>
 							<div className="form-group">
-								<label>Username</label>
-								<input name="username" type="text" />
+								<label>Email</label>
+								<input name="email" type="text" />
 								<br/>
 								<label>Password</label>
 								<input type="password" name="password" />
@@ -52,9 +52,9 @@ class Login extends React.Component {
 
 	handleSubmit(event){
 		event.preventDefault();
-		var username = event.target.username.value;
+		var email = event.target.email.value;
 		var password = event.target.password.value;
-		var url = 'http://localhost:8000/token/create';
+		var url = 'http://localhost:3000/token';
 
 		return fetch(url, {
 		  method: 'POST',
@@ -63,13 +63,13 @@ class Login extends React.Component {
 		    'Content-Type': 'application/json'
 		  },
 		  body: JSON.stringify({
-		    username: username,
+		    email: email,
 		    password: password,
 		  })
 		})
 		.then((response) => response.json())
 		.then((responseJson) => {
-			this.props.setAuthentication(responseJson.token);
+			this.props.setAuthentication('JWT '+responseJson.token);
 			this.props.history.push('/conversations');
       	})
 		.catch((error) => {

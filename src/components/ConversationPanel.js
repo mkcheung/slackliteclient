@@ -47,7 +47,7 @@ class ConversationPanel extends React.Component{
   		var currentUser = token.user_id;
   		var channelUsers = '&message_user_ids='+key+','+currentUser;
   		var channelType = '&singular=true';
-  		var requestUrl = 'http://localhost:8000/channels/getChannel?'+channelUsers+channelType;
+  		var requestUrl = 'http://localhost:3000/channels/getChannel?'+channelUsers+channelType;
 
 		return fetch(requestUrl, {
 		  method: 'GET',

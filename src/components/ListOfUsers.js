@@ -13,7 +13,7 @@ class ListOfUsers extends React.Component{
 	}
 
 	componentWillMount(){
-		var url = 'http://localhost:8000/users';
+		var url = 'http://localhost:3000/users';
 
 		return fetch(url, {
 		  method: 'GET',
@@ -25,7 +25,7 @@ class ListOfUsers extends React.Component{
 		.then((response) => response.json())
 		.then((responseJson) => {
 			this.setState({
-				users:responseJson.users
+				users:responseJson
 			});
       	})
 		.catch((error) => {

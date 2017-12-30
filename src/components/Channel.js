@@ -12,7 +12,7 @@ class Channel extends React.Component{
 	}
 
 	componentWillMount(){
-		var url = 'http://localhost:8000/messages/getMessagesInChannel';
+		var url = 'http://localhost:3000/messages/getMessagesInChannel';
 		return fetch(url, {
 		  method: 'POST',
 		  headers: {
