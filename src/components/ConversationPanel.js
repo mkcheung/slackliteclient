@@ -42,12 +42,12 @@ class ConversationPanel extends React.Component{
 		this.props.history.push('/');
 	}
 
-	selectChannel(key){
-  		var token = decode(this.props.authToken);
-  		var currentUser = token.user_id;
-  		var channelUsers = '&message_user_ids='+key+','+currentUser;
+	selectChannel(userid, email){
+  		// var token = decode(this.props.authToken);
+  		var channelUsers = '&message_user_ids='+userid;
   		var channelType = '&singular=true';
-  		var requestUrl = 'http://localhost:3000/channels/getChannel?'+channelUsers+channelType;
+  		var channelName = '&channelName='+email;
+  		var requestUrl = 'http://localhost:3000/channels/getChannel?'+channelUsers+channelType+channelName;
 
 		return fetch(requestUrl, {
 		  method: 'GET',
@@ -58,8 +58,11 @@ class ConversationPanel extends React.Component{
 		})
 		.then((response) => response.json())
 		.then((responseJson) => {
+			console.log('*************************');
+			console.log([responseJson]);
+			console.log('*************************');
 			this.setState({
-				channel:responseJson.channel
+				channel:[responseJson]
 			});
       	})
 		.catch((error) => {
