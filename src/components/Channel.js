@@ -12,21 +12,20 @@ class Channel extends React.Component{
 	}
 
 	componentWillMount(){
-		var url = 'http://localhost:3000/messages/getMessagesInChannel';
+		let url = 'http://localhost:3000/messages/getMessagesInChannel?&channelId='+this.props.details._id;
 		return fetch(url, {
-		  method: 'POST',
+		  method: 'GET',
 		  headers: {
 		    'Authorization': this.props.authToken,
 		    'Content-Type': 'application/json'
-		  },
-		  body: JSON.stringify({
-		    channel_id: this.props.index
-		  })
+		  }
 		})
 		.then((response) => response.json())
 		.then((responseJson) => {
+			console.log('--0-0-0-0-0-0-0--');
+			console.log(responseJson);
 			this.setState({
-				messages:responseJson.messages
+				messages:responseJson
 			});
       	})
 		.catch((error) => {
