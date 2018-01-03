@@ -40,6 +40,10 @@ class Channel extends React.Component{
 		});
 	}
 
+	componentWillUnmount() {
+		socket.emit('leave conversation', this.props.details._id);
+	}
+
 	render(){
 		console.log(this.props);
 		const {details, index} = this.props;
