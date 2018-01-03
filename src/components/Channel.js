@@ -1,6 +1,10 @@
 import Message from './Message';
 import React from 'react';
+import ChatInput from './ChatInput';
 import './channel.css'
+import io from "socket.io-client";
+// Connect to socket.io server
+const socket = io.connect('http://localhost:3000');
 
 class Channel extends React.Component{
 	
@@ -8,7 +12,9 @@ class Channel extends React.Component{
 		super();
 		this.state = {
 			messages:[]
-		}
+		}		
+
+		console.log(this);
 	}
 
 	componentWillMount(){
@@ -35,7 +41,14 @@ class Channel extends React.Component{
 	}
 
 	render(){
+		console.log(this.props);
 		const {details, index} = this.props;
+		let messages = this.state.messages;
+console.log(this.state.messages);
+console.log(this.props.messages);
+		if( this.props.messages.length > 0){
+			messages = this.props.messages;
+		}
 		return (
 			<div className="row">
 				<h1>
@@ -45,19 +58,20 @@ class Channel extends React.Component{
 					<ul>
 						{
 							Object
-							.keys(this.state.messages)
-							.map(key => <Message key={key} index={key} details={this.state.messages[key]} />)
+							.keys(messages)
+							.map(key => <Message key={key} index={key} details={messages[key]} />)
 						}
 					</ul>
 				</div>
 				<div className="row">
 					<div className='col-12'>
-						<input>
-							
-						</input>
-						<button>
-							Send
-						</button>
+						<ChatInput 
+							channelId={details._id} 
+							conn={this.conn} 
+							index={this.props.index} 
+							authToken={this.props.authToken} 
+							submitHandler={this.submitHandler}
+							updateMessages={this.updateMessages} />
 					</div>
 				</div>
 			</div>

@@ -5,6 +5,8 @@ import Login from './Login';
 import Logout from './Logout';
 import ListOfUsers from './ListOfUsers';
 import { Route, Redirect, browserHistory }  from 'react-router';
+import io from 'socket.io-client';
+const socket = io.connect('http://localhost:3000');
 
 const renderMergedProps = (component, ...rest) => {
   const finalProps = Object.assign({}, ...rest);
@@ -25,10 +27,35 @@ class ConversationPanel extends React.Component{
 	constructor(){
 		super();
 		this.state={
-			channel:{}
+			channel:{},
+			messages:[]
 		}
 		this.selectChannel=this.selectChannel.bind(this);
 		this.logoutAndRedirect=this.logoutAndRedirect.bind(this);
+
+
+		socket.on('refresh messages', (data) => {
+			let url = 'http://localhost:3000/messages/getMessagesInChannel?&channelId='+data;
+			return fetch(url, {
+			  method: 'GET',
+			  headers: {
+			    'Authorization': this.props.authToken,
+			    'Content-Type': 'application/json'
+			  }
+			})
+			.then((response) => response.json())
+			.then((responseJson) => {
+				console.log('refressed messages');
+				this.setState({
+					messages:responseJson
+				});
+
+	      	})
+			.catch((error) => {
+				console.log(error);
+				console.error(error);
+			});
+	    });
 	}
 
 	componentWillMount(){
@@ -60,7 +87,9 @@ class ConversationPanel extends React.Component{
 		.then((responseJson) => {
 			console.log('*************************');
 			console.log([responseJson]);
+			console.log(responseJson._id);
 			console.log('*************************');
+			socket.emit('enter conversation', responseJson._id);
 			this.setState({
 				channel:[responseJson]
 			});
@@ -89,7 +118,7 @@ class ConversationPanel extends React.Component{
 						{
 							Object
 							.keys(this.state.channel)
-							.map(key => <Channel key={key} index={key} authToken={this.props.authToken} details={this.state.channel[key]} />)
+							.map(key => <Channel key={key} index={key} authToken={this.props.authToken} details={this.state.channel[key]} messages={this.state.messages} />)
 						}
 					</div>
 				</div>
