@@ -54,7 +54,7 @@ console.log(this.props.messages);
 				<h1>
 					{details.channelName}
 				</h1>
-				<div className='col-12 transcript'>
+				<div className='col-12'  id='transcript' ref={(div) => {this.transcript = div;}}  style={{height: '600px', overflow:'auto'}}>
 					<ul>
 						{
 							Object
