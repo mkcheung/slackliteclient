@@ -32,6 +32,7 @@ class ConversationPanel extends React.Component{
 		}
 		this.selectChannel=this.selectChannel.bind(this);
 		this.logoutAndRedirect=this.logoutAndRedirect.bind(this);
+		this.isEmptyObject=this.isEmptyObject.bind(this);
 
 
 		socket.on('refresh messages', (data) => {
@@ -69,13 +70,24 @@ class ConversationPanel extends React.Component{
 		this.props.history.push('/');
 	}
 
+
+	isEmptyObject(obj) {
+		for (var key in obj) {
+			if (Object.prototype.hasOwnProperty.call(obj, key)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	selectChannel(userid, email){
   		// var token = decode(this.props.authToken);
   		var channelUsers = '&message_user_ids='+userid;
   		var channelType = '&singular=true';
   		var channelName = '&channelName='+email;
   		var requestUrl = 'http://localhost:3000/channels/getChannel?'+channelUsers+channelType+channelName;
-
+		var self = this;
+		
 		return fetch(requestUrl, {
 		  method: 'GET',
 		  headers: {
@@ -89,6 +101,9 @@ class ConversationPanel extends React.Component{
 			console.log([responseJson]);
 			console.log(responseJson._id);
 			console.log('*************************');
+			if(!self.isEmptyObject(self.state.channel)){
+				socket.emit('leave conversation', self.state.channel[0]._id);
+			}
 			socket.emit('enter conversation', responseJson._id);
 			this.setState({
 				channel:[responseJson]
