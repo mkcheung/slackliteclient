@@ -3,6 +3,8 @@ import 'whatwg-fetch';
 import { Route, Redirect }  from 'react-router';
 import Modal from 'react-responsive-modal';
 import ConversationPanel from './ConversationPanel';
+import 'react-responsive-modal/lib/react-responsive-modal.css';
+var NotificationSystem = require('react-notification-system');
 
 const renderMergedProps = (component, ...rest) => {
   const finalProps = Object.assign({}, ...rest);
@@ -24,6 +26,7 @@ class Login extends React.Component {
 		this.state={
 			open: false,
 		}
+		this.notificationSystem= null,
 		this.handleSubmit=this.handleSubmit.bind(this);
 		this.handleRegisterSubmit=this.handleRegisterSubmit.bind(this);
 		this.onOpenModal=this.onOpenModal.bind(this);
@@ -34,6 +37,10 @@ class Login extends React.Component {
 		if (this.props.checkIfLoggedIn()){
 			this.props.history.push('/conversations');
 		}
+	}
+
+	componentDidMount() {
+		this.notificationSystem = this.refs.notificationSystem;
 	}
 
 	onOpenModal(){
@@ -84,6 +91,7 @@ class Login extends React.Component {
 							</div>
 						</form>
 					</Modal>
+			        <NotificationSystem ref="notificationSystem" />
 				</div>
 		);
 	}
@@ -118,14 +126,11 @@ console.log(this);
 
 	handleRegisterSubmit(event){
 		event.preventDefault();
-		console.log(this);
-		var self = this;
 		var firstName = event.target.firstName.value;
 		var lastName = event.target.lastName.value;
 		var email = event.target.email.value;
 		var password = event.target.password.value;
 		var url = 'http://localhost:3000/users';
-		console.log(event);
 		return fetch(url, {
 			method: 'POST',
 			headers: {
@@ -141,7 +146,18 @@ console.log(this);
 			})
 			.then((response) => response.json())
 			.then((responseJson) => {
-				console.log(responseJson);
+				if(typeof responseJson.errmsg != "undefined"){
+					this.notificationSystem.addNotification({
+					  message: "User could not be registered. Please try again.",
+					  level: 'error'
+					});
+
+				} else {
+					this.notificationSystem.addNotification({
+					  message: "New User Registered",
+					  level: 'success'
+					});
+				}
 				this.onCloseModal();
 			})
 			.catch((error) => {
