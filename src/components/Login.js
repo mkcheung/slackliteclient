@@ -69,7 +69,7 @@ class Login extends React.Component {
 							</div>
 						</form>
 					</div>
-					<button onClick={this.onOpenModal}>Open modal</button>
+					<button onClick={this.onOpenModal}>Register User</button>
 					<Modal open={open} onClose={this.onCloseModal} little>
 						<h2>New User Registration</h2>
 						<form onSubmit={this.handleRegisterSubmit}>
@@ -146,6 +146,7 @@ console.log(this);
 			})
 			.then((response) => response.json())
 			.then((responseJson) => {
+				console.log(responseJson);
 				if(typeof responseJson.errmsg != "undefined"){
 					this.notificationSystem.addNotification({
 					  message: "User could not be registered. Please try again.",
