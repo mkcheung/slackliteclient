@@ -5,11 +5,9 @@ import Login from './Login';
 import Logout from './Logout';
 import ListOfUsers from './ListOfUsers';
 import { Route, Redirect, browserHistory }  from 'react-router';
-import Modal from 'react-responsive-modal';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
 import io from 'socket.io-client';
 const socket = io.connect('http://localhost:3000');
-
 var NotificationSystem = require('react-notification-system');
 
 const renderMergedProps = (component, ...rest) => {
@@ -31,15 +29,12 @@ class ConversationPanel extends React.Component{
 	constructor(){
 		super();
 		this.state={
-			open: false,
 			channel:{},
 			messages:[]
 		}
 		this.selectChannel=this.selectChannel.bind(this);
 		this.logoutAndRedirect=this.logoutAndRedirect.bind(this);
 		this.isEmptyObject=this.isEmptyObject.bind(this);
-		this.onOpenModal=this.onOpenModal.bind(this);
-		this.onCloseModal=this.onCloseModal.bind(this);
 
 
 		socket.on('refresh messages', (data) => {
@@ -53,7 +48,6 @@ class ConversationPanel extends React.Component{
 			})
 			.then((response) => response.json())
 			.then((responseJson) => {
-				console.log('refressed messages');
 				this.setState({
 					messages:responseJson
 				});
@@ -121,22 +115,11 @@ class ConversationPanel extends React.Component{
 			console.error(error);
 		});
 	}
-
-	onOpenModal(){
-    	this.setState({ open: true });
-  	};
- 
-	onCloseModal(){
-		this.setState({ open: false });
-	};
 	render(){
-
-		const { open } = this.state;
         let logoutButton = <Logout logoutAndRedirect={this.logoutAndRedirect}/>;
 
 		return (
 			<div className="container-fluid">
-				<button onClick={this.onOpenModal}>Create Group:</button>
 				{logoutButton}
 				<div className="row">
 					<div className="col-3">
@@ -153,21 +136,6 @@ class ConversationPanel extends React.Component{
 						}
 					</div>
 				</div>
-				<Modal open={open} onClose={this.onCloseModal} little>
-					<h2>Create Group Channel</h2>
-					<form onSubmit={this.handleCreateGroup}>
-						<br/>
-						<div className="form-group">
-							<label>Group Name</label>
-							<input name="groupName" type="text" />
-							<br/>
-							<label>Participants</label>
-							<textarea name="participants"/>
-							<br/>
-							<input type="submit" className="btn btn-primary"/>
-						</div>
-					</form>
-				</Modal>
 		        <NotificationSystem ref="notificationSystem" />
 			</div>
 		)

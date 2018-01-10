@@ -101,7 +101,6 @@ class Login extends React.Component {
 		var email = event.target.email.value;
 		var password = event.target.password.value;
 		var url = 'http://localhost:3000/token';
-console.log(this);
 		return fetch(url, {
 		  method: 'POST',
 		  headers: {
