@@ -91,32 +91,40 @@ class ListOfUsers extends React.Component{
         this.setState({ tags: tags });
     }
  
-    handleCreateGroup() {
+    handleCreateGroup(event) {
 
-		// var url = 'http://localhost:3000/message';
-		// return fetch(url, {
-		//   method: 'POST',
-		//   headers: {
-		//     'Authorization': this.props.authToken,
-		//     'Content-Type': 'application/json'
-		//   },
-		//   body: JSON.stringify({
-		//     channelId: channelId,
-		//     message:message
-		//   })
-		// })
-		// .then((response) => response.json())
-		// .then((responseJson) => {
-		// 	socket.emit('new message', channelId);
-		// 	// Clear the input box
-		// 	this.setState({ chatInput: '' });
-		// 	// this.setState({
-		// 	// 	messages:responseJson.messages
-		// 	// });
-  //     	})
-		// .catch((error) => {
-		// 	console.log(error);
-		// });
+		event.preventDefault();
+    	let userIds=[];
+		let channelName = event.target.groupName.value;
+		console.log(channelName);
+
+
+		for (let key in this.state.tags){
+			userIds.push(this.state.tags[key].id);
+		}
+		console.log(userIds);
+		console.log(channelName);
+		var url = 'http://localhost:3000/channel';
+		return fetch(url, {
+		  method: 'POST',
+		  headers: {
+		    'Authorization': this.props.authToken,
+		    'Content-Type': 'application/json'
+		  },
+		  body: JSON.stringify({
+		    channelName: channelName,
+		    channelUsers:userIds,
+		    type:'group'
+		  })
+		})
+		.then((response) => response.json())
+		.then((responseJson) => {
+			console.log(responseJson);
+			this.props.addGroupChannel(responseJson);
+      	})
+		.catch((error) => {
+			console.log(error);
+		});
     }
 
 	render(){

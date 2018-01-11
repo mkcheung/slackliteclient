@@ -4,6 +4,7 @@ import Channel from './Channel';
 import Login from './Login';
 import Logout from './Logout';
 import ListOfUsers from './ListOfUsers';
+import ListOfGroups from './ListOfGroups';
 import { Route, Redirect, browserHistory }  from 'react-router';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
 import io from 'socket.io-client';
@@ -30,11 +31,13 @@ class ConversationPanel extends React.Component{
 		super();
 		this.state={
 			channel:{},
+			groups:[],
 			messages:[]
 		}
 		this.selectChannel=this.selectChannel.bind(this);
 		this.logoutAndRedirect=this.logoutAndRedirect.bind(this);
 		this.isEmptyObject=this.isEmptyObject.bind(this);
+		this.addGroupChannel=this.addGroupChannel.bind(this);
 
 
 		socket.on('refresh messages', (data) => {
@@ -64,6 +67,29 @@ class ConversationPanel extends React.Component{
 		if (!this.props.checkIfLoggedIn()){
 			this.props.history.push('/');
 		}
+		var url = 'http://localhost:3000/channels/getGroupChannels';
+
+		return fetch(url, {
+		  method: 'GET',
+		  headers: {
+		    'Authorization': this.props.authToken,
+		    'Content-Type': 'application/json'
+		  }
+		})
+		.then((response) => response.json())
+		.then((responseJson) => {
+			let groups = [];
+			for(let key in responseJson){
+				groups.push(responseJson[key].email);
+			}
+			this.setState({
+				groups:responseJson
+			});
+      	})
+		.catch((error) => {
+			console.log(error);
+			console.error(error);
+		});
 	}
 
 	logoutAndRedirect(){
@@ -79,6 +105,12 @@ class ConversationPanel extends React.Component{
 			}
 		}
 		return true;
+	}
+
+	addGroupChannel(groupChannel) {
+		let groupChannels = this.state.groups;
+		groupChannels.push(groupChannel);
+		this.setState({ groups: groupChannels });
 	}
 
 	selectChannel(userid, email){
@@ -123,9 +155,15 @@ class ConversationPanel extends React.Component{
 				{logoutButton}
 				<div className="row">
 					<div className="col-3">
+						<ListOfGroups
+						 groups={this.state.groups}
+						 authToken={this.props.authToken}
+						 selectChannel={this.selectChannel}
+						/>
 						<ListOfUsers
 						 authToken={this.props.authToken}
 						 selectChannel={this.selectChannel}
+						 addGroupChannel={this.addGroupChannel}
 						/>
 					</div>
 					<div className="col-9">
