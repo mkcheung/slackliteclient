@@ -35,6 +35,7 @@ class ConversationPanel extends React.Component{
 			messages:[]
 		}
 		this.selectChannel=this.selectChannel.bind(this);
+		this.selectGroupChannel=this.selectGroupChannel.bind(this);
 		this.logoutAndRedirect=this.logoutAndRedirect.bind(this);
 		this.isEmptyObject=this.isEmptyObject.bind(this);
 		this.addGroupChannel=this.addGroupChannel.bind(this);
@@ -147,6 +148,35 @@ class ConversationPanel extends React.Component{
 			console.error(error);
 		});
 	}
+
+	selectGroupChannel(groupChannelId){
+  		var channelId = '&groupChannelId='+groupChannelId;
+  		var requestUrl = 'http://localhost:3000/channels/getGroupChannel?'+channelId;
+		var self = this;
+
+		return fetch(requestUrl, {
+		  method: 'GET',
+		  headers: {
+		    'Authorization': this.props.authToken,
+		    'Content-Type': 'application/json'
+		  }
+		})
+		.then((response) => response.json())
+		.then((responseJson) => {
+			if(!self.isEmptyObject(self.state.channel)){
+				socket.emit('leave conversation', self.state.channel[0]._id);
+			}
+			socket.emit('enter conversation', responseJson._id);
+			this.setState({
+				channel:[responseJson]
+			});
+      	})
+		.catch((error) => {
+			console.log(error);
+			console.error(error);
+		});
+	}
+
 	render(){
         let logoutButton = <Logout logoutAndRedirect={this.logoutAndRedirect}/>;
 
@@ -155,11 +185,13 @@ class ConversationPanel extends React.Component{
 				{logoutButton}
 				<div className="row">
 					<div className="col-3">
+						<h2>Groups</h2>
 						<ListOfGroups
 						 groups={this.state.groups}
 						 authToken={this.props.authToken}
-						 selectChannel={this.selectChannel}
+						 selectGroupChannel={this.selectGroupChannel}
 						/>
+						<h2>Users</h2>
 						<ListOfUsers
 						 authToken={this.props.authToken}
 						 selectChannel={this.selectChannel}

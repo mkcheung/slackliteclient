@@ -5,7 +5,7 @@ class Group extends React.Component{
 		const {details, index} = this.props;
 
 		return(
-			<li className="list-group-item" >
+			<li className="list-group-item" onClick={() => this.props.selectGroupChannel(details._id)} >
 				{details.name}
 			</li>
 		);
