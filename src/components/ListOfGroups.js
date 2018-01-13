@@ -9,9 +9,6 @@ class ListofGroups extends React.Component{
 
 	constructor(){
 		super();
-		// this.state={
-		// 	groups:[]
-		// };
 	}
 
 

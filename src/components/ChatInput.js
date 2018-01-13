@@ -25,17 +25,8 @@ class ChatInput extends React.Component{
 
 
 	submitHandler(event) {
-		// Stop the form from refreshing the page on submit
 		event.preventDefault();
 
-		console.log(this.props);
-
-		// // Call the onSend callback with the chatInput message
-		// this.props.conn.send(JSON.stringify({
-		// 	channelId:this.props.index,
-		// 	authToken:this.props.authToken,
-		// 	message:this.chatText.value
-		// }));
 		let channelId = this.props.channelId;
 		let message = this.chatText.value;
 
@@ -56,19 +47,10 @@ class ChatInput extends React.Component{
 			socket.emit('new message', channelId);
 			// Clear the input box
 			this.setState({ chatInput: '' });
-			// this.setState({
-			// 	messages:responseJson.messages
-			// });
       	})
 		.catch((error) => {
 			console.log(error);
 		});
-
-		// socket.emit('new message', this.props.index);
-
-	// this.props.updateFish(key, updated);
-		// messagesList.innerHTML += '<li class="sent"><span>Sent:</span>' + message +
-                            // '</li>';
 
 	}
 

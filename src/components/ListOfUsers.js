@@ -12,7 +12,8 @@ class ListOfUsers extends React.Component{
 		this.state={
 			users:[],
 			suggestions:[],
-            tags:[]
+            tags:[],
+            open:false
 		};
 		this.onOpenModal=this.onOpenModal.bind(this);
 		this.onCloseModal=this.onCloseModal.bind(this);
@@ -36,7 +37,6 @@ class ListOfUsers extends React.Component{
 		.then((responseJson) => {
 			let options = [];
 			for(let key in responseJson){
-				// console.log(responseJson[key].email);
 				options.push(responseJson[key].email);
 			}
 			this.setState({
@@ -96,14 +96,11 @@ class ListOfUsers extends React.Component{
 		event.preventDefault();
     	let userIds=[];
 		let channelName = event.target.groupName.value;
-		console.log(channelName);
 
 
 		for (let key in this.state.tags){
 			userIds.push(this.state.tags[key].id);
 		}
-		console.log(userIds);
-		console.log(channelName);
 		var url = 'http://localhost:3000/channel';
 		return fetch(url, {
 		  method: 'POST',
@@ -119,7 +116,6 @@ class ListOfUsers extends React.Component{
 		})
 		.then((response) => response.json())
 		.then((responseJson) => {
-			console.log(responseJson);
 			this.props.addGroupChannel(responseJson);
       	})
 		.catch((error) => {
