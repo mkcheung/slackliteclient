@@ -12,11 +12,8 @@ class ListOfUsers extends React.Component{
 		this.state={
 			users:[],
 			suggestions:[],
-            tags:[],
-            open:false
+            tags:[]
 		};
-		this.onOpenModal=this.onOpenModal.bind(this);
-		this.onCloseModal=this.onCloseModal.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.handleAddition = this.handleAddition.bind(this);
         this.handleDrag = this.handleDrag.bind(this);
@@ -49,14 +46,6 @@ class ListOfUsers extends React.Component{
 			console.error(error);
 		});
 	}
-
-	onOpenModal(){
-    	this.setState({ open: true });
-  	};
- 
-	onCloseModal(){
-		this.setState({ open: false });
-	};
 
 	handleDelete(i) {
         let tags = this.state.tags;
@@ -125,10 +114,9 @@ class ListOfUsers extends React.Component{
 
 	render(){
 		const { tags, suggestions } = this.state;
-		const { open } = this.state;
+		const { open, onOpenModal, onCloseModal } = this.props;
 		return(
 			<div>
-				<button onClick={this.onOpenModal}>Create Group:</button>
 				<ul>
 					{
 						Object
@@ -136,7 +124,7 @@ class ListOfUsers extends React.Component{
 						.map(key => <User key={key} index={key} selectChannel={this.props.selectChannel} details={this.state.users[key]}/>)
 					}
 				</ul>
-				<Modal open={open} onClose={this.onCloseModal} little>
+				<Modal open={open} onClose={onCloseModal} little>
 					<h2>Create Group Channel</h2>
 					<form onSubmit={this.handleCreateGroup}>
 						<br/>

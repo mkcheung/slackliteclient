@@ -32,13 +32,16 @@ class ConversationPanel extends React.Component{
 		this.state={
 			channel:{},
 			groups:[],
-			messages:[]
+			messages:[],
+            open:false
 		}
 		this.selectChannel=this.selectChannel.bind(this);
 		this.selectGroupChannel=this.selectGroupChannel.bind(this);
 		this.logoutAndRedirect=this.logoutAndRedirect.bind(this);
 		this.isEmptyObject=this.isEmptyObject.bind(this);
 		this.addGroupChannel=this.addGroupChannel.bind(this);
+		this.onOpenModal=this.onOpenModal.bind(this);
+		this.onCloseModal=this.onCloseModal.bind(this);
 
 
 		socket.on('refresh messages', (data) => {
@@ -114,6 +117,7 @@ class ConversationPanel extends React.Component{
 		let groupChannels = this.state.groups;
 		groupChannels.push(groupChannel);
 		this.setState({ groups: groupChannels });
+		this.onCloseModal();
 	}
 
 	selectChannel(userid, email){
@@ -173,12 +177,21 @@ class ConversationPanel extends React.Component{
 		});
 	}
 
+	onOpenModal(){
+    	this.setState({ open: true });
+  	};
+ 
+	onCloseModal(){
+		this.setState({ open: false });
+	};
+
 	render(){
         let logoutButton = <Logout logoutAndRedirect={this.logoutAndRedirect}/>;
 
 		return (
 			<div className="container-fluid">
 				{logoutButton}
+				<button onClick={this.onOpenModal}>Create Group:</button>
 				<div className="row">
 					<div className="col-3">
 						<h2>Groups</h2>
@@ -192,6 +205,9 @@ class ConversationPanel extends React.Component{
 						 authToken={this.props.authToken}
 						 selectChannel={this.selectChannel}
 						 addGroupChannel={this.addGroupChannel}
+						 onOpenModal={this.onOpenModal}
+						 onCloseModal={this.onCloseModal}
+						 open={this.state.open}
 						/>
 					</div>
 					<div className="col-9">
