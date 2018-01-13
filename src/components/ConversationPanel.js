@@ -96,6 +96,7 @@ class ConversationPanel extends React.Component{
 
 	logoutAndRedirect(){
 		this.props.logout();
+		socket.emit('disconnect');
 		this.props.history.push('/');
 	}
 
