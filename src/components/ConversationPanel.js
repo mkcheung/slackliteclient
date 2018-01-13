@@ -95,8 +95,8 @@ class ConversationPanel extends React.Component{
 	}
 
 	logoutAndRedirect(){
-		this.props.logout();
 		socket.emit('disconnect');
+		this.props.logout();
 		this.props.history.push('/');
 	}
 
@@ -132,7 +132,7 @@ class ConversationPanel extends React.Component{
 		.then((response) => response.json())
 		.then((responseJson) => {
 			if(!self.isEmptyObject(self.state.channel)){
-				socket.emit('leave conversation', self.state.channel[0]._id);
+				socket.emit('leave conversation', self.state.channel);
 			}
 			socket.emit('enter conversation', responseJson._id);
 			this.setState({
