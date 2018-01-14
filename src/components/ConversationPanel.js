@@ -33,7 +33,8 @@ class ConversationPanel extends React.Component{
 			channel:{},
 			groups:[],
 			messages:[],
-            open:false
+            open:false,
+            channelName:null
 		}
 		this.selectChannel=this.selectChannel.bind(this);
 		this.selectGroupChannel=this.selectGroupChannel.bind(this);
@@ -141,7 +142,8 @@ class ConversationPanel extends React.Component{
 			socket.emit('enter conversation', responseJson._id);
 			this.setState({
 				channel:[responseJson._id],
-				messages:responseJson.messages
+				messages:responseJson.messages,
+				channelName:responseJson.name
 			});
       	})
 		.catch((error) => {
@@ -150,7 +152,7 @@ class ConversationPanel extends React.Component{
 		});
 	}
 
-	selectGroupChannel(groupChannelId){
+	selectGroupChannel(groupChannelId, groupName){
 		let url = 'http://localhost:3000/messages/getMessagesInChannel?&channelId='+groupChannelId;
 		var self = this;
 		return fetch(url, {
@@ -168,7 +170,8 @@ class ConversationPanel extends React.Component{
 			socket.emit('enter conversation', groupChannelId);
 			this.setState({
 				channel:[groupChannelId],
-				messages:responseJson
+				messages:responseJson,
+				channelName:groupName
 			});
       	})
 		.catch((error) => {
@@ -214,7 +217,7 @@ class ConversationPanel extends React.Component{
 						{
 							Object
 							.keys(this.state.channel)
-							.map(key => <Channel key={key} index={key} authToken={this.props.authToken} channelId={this.state.channel[key]} messages={this.state.messages} />)
+							.map(key => <Channel key={key} index={key} authToken={this.props.authToken} channelId={this.state.channel[key]} channelName={this.state.channelName} messages={this.state.messages} />)
 						}
 					</div>
 				</div>

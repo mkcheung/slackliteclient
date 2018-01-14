@@ -17,9 +17,10 @@ class Channel extends React.Component{
 	}
 
 	render(){
-		const {channelId, index, messages} = this.props;
+		const {channelId, channelName, index, messages} = this.props;
 		return (
 			<div className="row">
+				<h1>{channelName}</h1>
 				<div className='col-12'  id='transcript' ref={(div) => {this.transcript = div;}}  style={{height: '600px', overflow:'auto'}}>
 					<ul>
 						{
