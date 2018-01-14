@@ -96,14 +96,13 @@ class ConversationPanel extends React.Component{
 			console.log(error);
 			console.error(error);
 		});
-	}
+	}	
 
 	logoutAndRedirect(){
 		socket.emit('disconnect');
 		this.props.logout();
 		this.props.history.push('/');
 	}
-
 
 	isEmptyObject(obj) {
 		for (var key in obj) {
