@@ -1,4 +1,5 @@
-.transcript {
+#transcript {
     border-style: solid;
+    overflow-y: scroll;
     height: 500px;
 } 

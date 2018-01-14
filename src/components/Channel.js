@@ -8,6 +8,7 @@ const socket = io.connect('http://localhost:3000');
 
 class Channel extends React.Component{
 	
+
 	constructor(props){
 		super(props);
 		this.scrollToBottom=this.scrollToBottom.bind(this);
