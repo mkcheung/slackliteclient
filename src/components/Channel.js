@@ -10,10 +10,24 @@ class Channel extends React.Component{
 	
 	constructor(props){
 		super(props);
+		this.scrollToBottom=this.scrollToBottom.bind(this);
 	}
 
 	componentWillUnmount() {
 		socket.emit('leave conversation', this.channelId);
+	}
+
+	componentDidMount() {
+		this.scrollToBottom();
+	}
+
+	componentDidUpdate() {
+		this.scrollToBottom();
+	}
+
+	scrollToBottom(){
+	  var transcriptBlock = this.refs.transcript;
+	  transcriptBlock.scrollTop = transcriptBlock.scrollHeight;
 	}
 
 	render(){
@@ -21,7 +35,7 @@ class Channel extends React.Component{
 		return (
 			<div className="row">
 				<h1>{channelName}</h1>
-				<div className='col-12'  id='transcript' ref={(div) => {this.transcript = div;}}  style={{height: '600px', overflow:'auto'}}>
+				<div className='col-12'  id='transcript' ref='transcript'  style={{height: '600px', overflow:'auto'}}>
 					<ul>
 						{
 							Object
