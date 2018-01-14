@@ -7,10 +7,12 @@ export function login() {
 
 function getTokenExpirationDate(encodedToken) {
   const token = decode(encodedToken);
-  if (!token.exp) { return null; }
+  if (!token.iat) { return null; }
+
+  const expDate = token.iat + 600;
 
   const date = new Date(0);
-  date.setUTCSeconds(token.exp);
+  date.setUTCSeconds(expDate);
 
   return date;
 }

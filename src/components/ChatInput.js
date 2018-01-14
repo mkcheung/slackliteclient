@@ -1,6 +1,9 @@
 import Message from './Message';
 import React from 'react';
+import io from 'socket.io-client';
 import './channel.css'
+// Connect to socket.io server
+export const socket = io.connect('http://localhost:3000');
 
 class ChatInput extends React.Component{
 	
@@ -22,21 +25,32 @@ class ChatInput extends React.Component{
 
 
 	submitHandler(event) {
-		// Stop the form from refreshing the page on submit
 		event.preventDefault();
-		// Call the onSend callback with the chatInput message
-		this.props.conn.send(JSON.stringify({
-			channelId:this.props.index,
-			authToken:this.props.authToken,
-			message:this.chatText.value
-		}));
 
-	// this.props.updateFish(key, updated);
-		// messagesList.innerHTML += '<li class="sent"><span>Sent:</span>' + message +
-                            // '</li>';
+		let channelId = this.props.channelId;
+		let message = this.chatText.value;
 
-		// Clear the input box
-		this.setState({ chatInput: '' });
+		var url = 'http://localhost:3000/message';
+		return fetch(url, {
+		  method: 'POST',
+		  headers: {
+		    'Authorization': this.props.authToken,
+		    'Content-Type': 'application/json'
+		  },
+		  body: JSON.stringify({
+		    channelId: channelId,
+		    message:message
+		  })
+		})
+		.then((response) => response.json())
+		.then((responseJson) => {
+			socket.emit('new message', channelId);
+			// Clear the input box
+			this.setState({ chatInput: '' });
+      	})
+		.catch((error) => {
+			console.log(error);
+		});
 	}
 
 	render() {
