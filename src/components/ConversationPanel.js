@@ -27,8 +27,8 @@ const PropsRoute = ({ component, ...rest }) => {
 
 class ConversationPanel extends React.Component{
 
-	constructor(){
-		super();
+	constructor(props){
+		super(props);
 		this.state={
 			channel:{},
 			groups:[],
@@ -148,7 +148,6 @@ class ConversationPanel extends React.Component{
       	})
 		.catch((error) => {
 			console.log(error);
-			console.error(error);
 		});
 	}
 
