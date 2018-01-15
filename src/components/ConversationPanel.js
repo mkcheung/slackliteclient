@@ -142,12 +142,11 @@ class ConversationPanel extends React.Component{
 
 			let directedTo = null;
 			const usersInChannel = responseJson.channelUsers;
-
 			for(let key in usersInChannel){
 				if(usersInChannel[key]._id === userid){
 					directedTo = usersInChannel[key].firstName + ' ' + usersInChannel[key].lastName;
+					break;
 				}
-				break;
 			}
 
 			this.setState({
