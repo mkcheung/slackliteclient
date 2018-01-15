@@ -139,10 +139,21 @@ class ConversationPanel extends React.Component{
 				socket.emit('leave conversation', self.state.channel);
 			}
 			socket.emit('enter conversation', responseJson._id);
+
+			let directedTo = null;
+			const usersInChannel = responseJson.channelUsers;
+
+			for(let key in usersInChannel){
+				if(usersInChannel[key]._id === userid){
+					directedTo = usersInChannel[key].firstName + ' ' + usersInChannel[key].lastName;
+				}
+				break;
+			}
+
 			this.setState({
 				channel:[responseJson._id],
 				messages:responseJson.messages,
-				channelName:responseJson.name
+				channelName:directedTo
 			});
       	})
 		.catch((error) => {
