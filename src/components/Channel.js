@@ -4,7 +4,8 @@ import ChatInput from './ChatInput';
 import './channel.css'
 import io from "socket.io-client";
 // Connect to socket.io server
-const socket = io.connect('http://localhost:3000');
+import * as configConsts from '../config/config';
+const socket = io.connect(configConsts.chatServerDomain);
 
 class Channel extends React.Component{
 	

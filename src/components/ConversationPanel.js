@@ -8,7 +8,8 @@ import ListOfGroups from './ListOfGroups';
 import { Route, Redirect, browserHistory }  from 'react-router';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
 import io from 'socket.io-client';
-const socket = io.connect('http://localhost:3000');
+import * as configConsts from '../config/config';
+const socket = io.connect(configConsts.chatServerDomain);
 var NotificationSystem = require('react-notification-system');
 
 const renderMergedProps = (component, ...rest) => {
@@ -33,6 +34,9 @@ class ConversationPanel extends React.Component{
 			channel:{},
 			groups:[],
 			messages:[],
+			users:[],
+			suggestions:[],
+            tags:[],
             open:false,
             channelName:null
 		}
@@ -43,11 +47,15 @@ class ConversationPanel extends React.Component{
 		this.addGroupChannel=this.addGroupChannel.bind(this);
 		this.onOpenModal=this.onOpenModal.bind(this);
 		this.onCloseModal=this.onCloseModal.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
+        this.handleAddition = this.handleAddition.bind(this);
+        this.handleDrag = this.handleDrag.bind(this);
+        this.handleCreateGroup = this.handleCreateGroup.bind(this);
 
 
 		socket.on('refresh messages', (data) => {
 			
-			let url = 'http://localhost:3000/messages/getMessagesInChannel?&channelId='+data;
+			let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+data;
 			return fetch(url, {
 			  method: 'GET',
 			  headers: {
@@ -69,33 +77,55 @@ class ConversationPanel extends React.Component{
 	    });
 	}
 
-	componentWillMount(){
+	async componentWillMount(){
 		if (!this.props.checkIfLoggedIn()){
 			this.props.history.push('/');
 		}
-		var url = 'http://localhost:3000/channels/getGroupChannels';
+		var url = configConsts.chatServerDomain + 'channels/getGroupChannels';
+		var userUrl = configConsts.chatServerDomain + 'users';
 
-		return fetch(url, {
-		  method: 'GET',
-		  headers: {
-		    'Authorization': this.props.authToken,
-		    'Content-Type': 'application/json'
-		  }
-		})
-		.then((response) => response.json())
-		.then((responseJson) => {
-			let groups = [];
-			for(let key in responseJson){
-				groups.push(responseJson[key].email);
-			}
-			this.setState({
-				groups:responseJson
-			});
-      	})
-		.catch((error) => {
+		try{
+			const res =	await fetch(url, {
+					  method: 'GET',
+					  headers: {
+					    'Authorization': this.props.authToken,
+					    'Content-Type': 'application/json'
+					  }
+					});
+
+			let groupChannels = await res.json().then((responseJson) => {
+						let groups = [];
+						for(let key in responseJson){
+							groups.push(responseJson[key].email);
+						}
+						this.setState({
+							groups:responseJson
+						});
+			      	});
+
+			const resUser =	await fetch(userUrl, {
+					  method: 'GET',
+					  headers: {
+					    'Authorization': this.props.authToken,
+					    'Content-Type': 'application/json'
+					  }
+					});
+
+			let options = [];
+			let theUsers = await resUser.json().then((responseJson) => {
+						
+						for(let key in responseJson){
+							options.push(responseJson[key].email);
+						}
+						this.setState({
+							users:responseJson,
+							suggestions:options
+						});
+			      	});
+		} catch(error) {
 			console.log(error);
 			console.error(error);
-		});
+		}
 	}	
 
 	logoutAndRedirect(){
@@ -124,7 +154,7 @@ class ConversationPanel extends React.Component{
   		var channelUsers = '&message_user_ids='+userid;
   		var channelType = '&singular=true';
   		var channelName = '&channelName='+email;
-  		var requestUrl = 'http://localhost:3000/channels/getChannel?'+channelUsers+channelType+channelName;
+  		var requestUrl = configConsts.chatServerDomain + 'channels/getChannel?'+channelUsers+channelType+channelName;
 		var self = this;
 		return fetch(requestUrl, {
 		  method: 'GET',
@@ -161,7 +191,7 @@ class ConversationPanel extends React.Component{
 	}
 
 	selectGroupChannel(groupChannelId, groupName){
-		let url = 'http://localhost:3000/messages/getMessagesInChannel?&channelId='+groupChannelId;
+		let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+groupChannelId;
 		var self = this;
 		return fetch(url, {
 		  method: 'GET',
@@ -196,6 +226,71 @@ class ConversationPanel extends React.Component{
 		this.setState({ open: false });
 	};
 
+	handleDelete(i) {
+        let tags = this.state.tags;
+        tags.splice(i, 1);
+        this.setState({tags: tags});
+    }
+ 
+    handleAddition(tag) {
+		let { tags, users } = this.state;
+        let tagId = '';
+		for (let key in users){
+			if(tag === users[key].email){
+				tagId = users[key]._id
+				break;
+			}
+		}
+        tags.push({
+            id: tagId,
+            text: tag
+        });
+        this.setState({tags: tags});
+    }
+ 
+    handleDrag(tag, currPos, newPos) {
+        let tags = this.state.tags;
+ 
+        // mutate array 
+        tags.splice(currPos, 1);
+        tags.splice(newPos, 0, tag);
+ 
+        // re-render 
+        this.setState({ tags: tags });
+    }
+ 
+    handleCreateGroup(event) {
+
+		event.preventDefault();
+    	let userIds=[];
+		let channelName = event.target.groupName.value;
+
+
+		for (let key in this.state.tags){
+			userIds.push(this.state.tags[key].id);
+		}
+		var url = configConsts.chatServerDomain + 'channel';
+		return fetch(url, {
+		  method: 'POST',
+		  headers: {
+		    'Authorization': this.props.authToken,
+		    'Content-Type': 'application/json'
+		  },
+		  body: JSON.stringify({
+		    channelName: channelName,
+		    channelUsers:userIds,
+		    type:'group'
+		  })
+		})
+		.then((response) => response.json())
+		.then((responseJson) => {
+			this.addGroupChannel(responseJson);
+      	})
+		.catch((error) => {
+			console.log(error);
+		});
+    }
+
 	render(){
         let logoutButton = <Logout logoutAndRedirect={this.logoutAndRedirect}/>;
 
@@ -209,16 +304,23 @@ class ConversationPanel extends React.Component{
 						<ListOfGroups
 						 groups={this.state.groups}
 						 authToken={this.props.authToken}
+						 tags={this.state.tags}
+						 suggestions={this.state.suggestions}
 						 selectGroupChannel={this.selectGroupChannel}
+						 addGroupChannel={this.addGroupChannel}
+						 handleCreateGroup={this.handleCreateGroup}
+						 onOpenModal={this.onOpenModal}
+						 onCloseModal={this.onCloseModal}
+						 handleDelete={this.handleDelete}
+						 handleAddition={this.handleAddition}
+						 handleDrag={this.handleDrag}
+						 open={this.state.open}
 						/>
 						<h2>Users</h2>
 						<ListOfUsers
+						 users={this.state.users}
 						 authToken={this.props.authToken}
 						 selectChannel={this.selectChannel}
-						 addGroupChannel={this.addGroupChannel}
-						 onOpenModal={this.onOpenModal}
-						 onCloseModal={this.onCloseModal}
-						 open={this.state.open}
 						/>
 					</div>
 					<div className="col-9">

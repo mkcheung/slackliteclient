@@ -4,6 +4,9 @@ import { Route, Redirect }  from 'react-router';
 import Modal from 'react-responsive-modal';
 import ConversationPanel from './ConversationPanel';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
+import io from 'socket.io-client';
+import * as configConsts from '../config/config';
+const socket = io.connect(configConsts.chatServerDomain);
 var NotificationSystem = require('react-notification-system');
 
 const renderMergedProps = (component, ...rest) => {
@@ -129,7 +132,7 @@ class Login extends React.Component {
 		var lastName = event.target.lastName.value;
 		var email = event.target.email.value;
 		var password = event.target.password.value;
-		var url = 'http://localhost:3000/users';
+		var url = configConsts.chatServerDomain + 'users';
 		return fetch(url, {
 			method: 'POST',
 			headers: {

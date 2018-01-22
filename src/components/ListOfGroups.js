@@ -7,12 +7,13 @@ import Modal from 'react-responsive-modal';
 
 class ListofGroups extends React.Component{
 
-	constructor(){
-		super();
+	constructor(props){
+		super(props);
 	}
 
 
 	render(){
+		const { tags, suggestions, open, onOpenModal, onCloseModal } = this.props;
 		return(
 			<div>
 				<ul>
@@ -22,6 +23,25 @@ class ListofGroups extends React.Component{
 						.map(key => <Group key={key} index={key} selectGroupChannel={this.props.selectGroupChannel} details={this.props.groups[key]}/>)
 					}
 				</ul>
+				<Modal open={open} onClose={onCloseModal} little>
+					<h2>Create Group Channel</h2>
+					<form onSubmit={this.props.handleCreateGroup}>
+						<br/>
+						<div className="form-group">
+							<label>Group Name</label>
+							<input name="groupName" type="text" />
+							<br/>
+							<div>
+				                <ReactTags tags={tags}
+				                    suggestions={suggestions}
+				                    handleDelete={this.props.handleDelete}
+				                    handleAddition={this.props.handleAddition}
+				                    handleDrag={this.props.handleDrag} />
+            				</div>
+							<input type="submit" className="btn btn-primary"/>
+						</div>
+					</form>
+				</Modal>
 			</div>
 		)
 	}

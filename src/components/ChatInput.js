@@ -2,8 +2,9 @@ import Message from './Message';
 import React from 'react';
 import io from 'socket.io-client';
 import './channel.css'
+import * as configConsts from '../config/config';
 // Connect to socket.io server
-export const socket = io.connect('http://localhost:3000');
+export const socket = io.connect(configConsts.chatServerDomain);
 
 class ChatInput extends React.Component{
 	
@@ -30,7 +31,7 @@ class ChatInput extends React.Component{
 		let channelId = this.props.channelId;
 		let message = this.chatText.value;
 
-		var url = 'http://localhost:3000/message';
+		var url = configConsts.chatServerDomain + 'message';
 		return fetch(url, {
 		  method: 'POST',
 		  headers: {
