@@ -103,7 +103,7 @@ class Login extends React.Component {
 		event.preventDefault();
 		var email = event.target.email.value;
 		var password = event.target.password.value;
-		var url = 'http://localhost:3000/token';
+		var url = configConsts.chatServerDomain + 'token';
 		return fetch(url, {
 		  method: 'POST',
 		  headers: {
