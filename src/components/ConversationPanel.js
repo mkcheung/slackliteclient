@@ -51,7 +51,11 @@ class ConversationPanel extends React.Component{
         this.handleAddition = this.handleAddition.bind(this);
         this.handleDrag = this.handleDrag.bind(this);
         this.handleCreateGroup = this.handleCreateGroup.bind(this);
+        this.refreshUsers = this.refreshUsers.bind(this);
 
+		socket.on('refresh users', (users) => {
+			this.refreshUsers(users);
+	    });
 
 		socket.on('refresh messages', (data) => {
 			
@@ -128,8 +132,17 @@ class ConversationPanel extends React.Component{
 		}
 	}	
 
+	refreshUsers(users){
+		console.log(users);
+		this.setState({
+			users:users
+		});
+	}
+
 	logoutAndRedirect(){
-		socket.emit('disconnect');
+		const loggedOutUserData = decode(this.props.authToken);
+		// socket.emit('disconnect');
+		socket.emit('loggedOut', loggedOutUserData._id);
 		this.props.logout();
 		this.props.history.push('/');
 	}

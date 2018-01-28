@@ -118,6 +118,7 @@ class Login extends React.Component {
 		.then((response) => response.json())
 		.then((responseJson) => {
 			this.props.setAuthentication('JWT '+responseJson.token);
+			socket.emit('loggedIn', responseJson.userid);
 			this.props.history.push('/conversations');
       	})
 		.catch((error) => {
