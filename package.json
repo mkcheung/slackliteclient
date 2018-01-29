@@ -5,9 +5,11 @@
   "dependencies": {
     "jwt-decode": "^2.2.0",
     "marked": "^0.3.12",
+    "moment": "^2.20.1",
     "react": "^15.5.4",
     "react-bootstrap": "^0.31.0",
     "react-dom": "^15.5.4",
+    "react-moment": "^0.7.0",
     "react-notification-system": "^0.2.16",
     "react-notifications": "^1.4.3",
     "react-responsive-modal": "^2.0.0",
