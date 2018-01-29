@@ -7,9 +7,7 @@ import ListOfUsers from './ListOfUsers';
 import ListOfGroups from './ListOfGroups';
 import { Route, Redirect, browserHistory }  from 'react-router';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
-import io from 'socket.io-client';
 import * as configConsts from '../config/config';
-const socket = io.connect(configConsts.chatServerDomain);
 var NotificationSystem = require('react-notification-system');
 
 const renderMergedProps = (component, ...rest) => {
@@ -53,11 +51,13 @@ class ConversationPanel extends React.Component{
         this.handleCreateGroup = this.handleCreateGroup.bind(this);
         this.refreshUsers = this.refreshUsers.bind(this);
 
-		socket.on('refresh users', (users) => {
+
+		configConsts.socket.on('refresh users', (users) => {
+			console.log(users);
 			this.refreshUsers(users);
 	    });
 
-		socket.on('refresh messages', (data) => {
+		configConsts.socket.on('refresh messages', (data) => {
 			
 			let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+data;
 			return fetch(url, {
@@ -133,16 +133,23 @@ class ConversationPanel extends React.Component{
 	}	
 
 	refreshUsers(users){
-		console.log(users);
-		this.setState({
-			users:users
-		});
+
+		if (this.props.checkIfLoggedIn()){
+			this.setState({
+				users:users
+			});
+		}
 	}
 
 	logoutAndRedirect(){
 		const loggedOutUserData = decode(this.props.authToken);
-		// socket.emit('disconnect');
-		socket.emit('loggedOut', loggedOutUserData._id);
+		// configConsts.socket.emit('logged out', loggedOutUserData._id);
+		if(!this.isEmptyObject(this.state.channel)){
+			// configConsts.socket.emit('leave conversation', this.state.channel);
+
+			configConsts.socket.emit('logged out', loggedOutUserData._id);
+		}
+		configConsts.socket.emit('disconnect');
 		this.props.logout();
 		this.props.history.push('/');
 	}
@@ -179,9 +186,9 @@ class ConversationPanel extends React.Component{
 		.then((response) => response.json())
 		.then((responseJson) => {
 			if(!self.isEmptyObject(self.state.channel)){
-				socket.emit('leave conversation', self.state.channel);
+				configConsts.socket.emit('leave conversation', self.state.channel);
 			}
-			socket.emit('enter conversation', responseJson._id);
+			configConsts.socket.emit('enter conversation', responseJson._id);
 
 			let directedTo = null;
 			const usersInChannel = responseJson.channelUsers;
@@ -216,9 +223,9 @@ class ConversationPanel extends React.Component{
 		.then((response) => response.json())
 		.then((responseJson) => {
 			if(!self.isEmptyObject(self.state.channel)){
-				socket.emit('leave conversation', self.state.channel[0]._id);
+				configConsts.socket.emit('leave conversation', self.state.channel[0]._id);
 			}
-			socket.emit('enter conversation', groupChannelId);
+			configConsts.socket.emit('enter conversation', groupChannelId);
 			this.setState({
 				channel:[groupChannelId],
 				messages:responseJson,

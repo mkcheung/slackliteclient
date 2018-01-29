@@ -1,10 +1,7 @@
 import Message from './Message';
 import React from 'react';
-import io from 'socket.io-client';
 import './channel.css'
 import * as configConsts from '../config/config';
-// Connect to socket.io server
-export const socket = io.connect(configConsts.chatServerDomain);
 
 class ChatInput extends React.Component{
 	
@@ -45,7 +42,7 @@ class ChatInput extends React.Component{
 		})
 		.then((response) => response.json())
 		.then((responseJson) => {
-			socket.emit('new message', channelId);
+			configConsts.socket.emit('new message', channelId);
 			// Clear the input box
 			this.setState({ chatInput: '' });
       	})
