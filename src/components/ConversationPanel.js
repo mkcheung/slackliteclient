@@ -143,13 +143,11 @@ class ConversationPanel extends React.Component{
 
 	logoutAndRedirect(){
 		const loggedOutUserData = decode(this.props.authToken);
-		// configConsts.socket.emit('logged out', loggedOutUserData._id);
-		if(!this.isEmptyObject(this.state.channel)){
-			// configConsts.socket.emit('leave conversation', this.state.channel);
-
-			configConsts.socket.emit('logged out', loggedOutUserData._id);
-		}
-		configConsts.socket.emit('disconnect');
+		configConsts.socket.off('refresh users');
+		configConsts.socket.off('refresh messages');
+		configConsts.socket.emit('logged out', loggedOutUserData._id);
+		configConsts.socket.disconnect();
+		
 		this.props.logout();
 		this.props.history.push('/');
 	}
