@@ -40,7 +40,7 @@ class Channel extends React.Component{
 						{
 							Object
 							.keys(messages)
-							.map(key => <Message key={key} index={key} details={messages[key]} />)
+							.map(key => <Message key={key} index={key} authToken={this.props.authToken} details={messages[key]} />)
 						}
 					</ul>
 				</div>
