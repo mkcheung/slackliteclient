@@ -8,6 +8,7 @@ import ListOfGroups from './ListOfGroups';
 import { Route, Redirect, browserHistory }  from 'react-router';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
 import * as configConsts from '../config/config';
+import { findDOMNode }  from 'react-dom';
 var NotificationSystem = require('react-notification-system');
 
 const renderMergedProps = (component, ...rest) => {
@@ -147,7 +148,7 @@ class ConversationPanel extends React.Component{
 		configConsts.socket.off('refresh messages');
 		configConsts.socket.emit('logged out', loggedOutUserData._id);
 		configConsts.socket.disconnect();
-		
+
 		this.props.logout();
 		this.props.history.push('/');
 	}
@@ -168,7 +169,17 @@ class ConversationPanel extends React.Component{
 		this.onCloseModal();
 	}
 
-	selectChannel(userid, email){
+	selectChannel(event, userid, email){
+
+		event.preventDefault();
+		let targetClass = event.target;
+		let listItems = findDOMNode(this.refs.userRef).getElementsByClassName('list-group-item');
+		for( let i = 0 ; i < listItems.length; i++){
+			listItems[i].style = 'white';
+		}
+
+		event.currentTarget.style.backgroundColor = '#E7FFE7';
+
   		var channelUsers = '&message_user_ids='+userid;
   		var channelType = '&singular=true';
   		var channelName = '&channelName='+email;
@@ -333,12 +344,14 @@ class ConversationPanel extends React.Component{
 						 handleAddition={this.handleAddition}
 						 handleDrag={this.handleDrag}
 						 open={this.state.open}
+						 ref='groupRef'
 						/>
 						<h2>Users</h2>
 						<ListOfUsers
 						 users={this.state.users}
 						 authToken={this.props.authToken}
 						 selectChannel={this.selectChannel}
+						 ref='userRef'
 						/>
 					</div>
 					<div className="col-9">
