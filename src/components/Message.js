@@ -8,7 +8,7 @@ class Message extends React.Component{
 			if(this.props.details.user._id == currentUserData._id) {
 
 				return(
-					<li style={{float:'right',clear:'both'}}>
+					<li style={{float:'right',clear:'both',backgroundColor:'#334CFF',color:'white',listStyle:'none'}}>
 						<span>{this.props.details.user.email} <Moment format="MM-DD-YYYY hh:mm a">{this.props.details.created}</Moment></span>
 						<br/>
 						<span>{this.props.details.message}</span>
@@ -17,7 +17,7 @@ class Message extends React.Component{
 			} else {
 
 				return(
-					<li style={{float:'left',clear: 'both'}}>
+					<li style={{float:'left',clear: 'both',backgroundColor:'#C9E1E5',listStyle:'none'}}>
 						<span>{this.props.details.user.email} <Moment format="MM-DD-YYYY hh:mm a">{this.props.details.created}</Moment></span>
 						<br/>
 						<span>{this.props.details.message}</span>
