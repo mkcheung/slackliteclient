@@ -4,9 +4,7 @@ import { Route, Redirect }  from 'react-router';
 import Modal from 'react-responsive-modal';
 import ConversationPanel from './ConversationPanel';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
-import io from 'socket.io-client';
 import * as configConsts from '../config/config';
-const socket = io.connect(configConsts.chatServerDomain);
 var NotificationSystem = require('react-notification-system');
 
 const renderMergedProps = (component, ...rest) => {
@@ -118,6 +116,9 @@ class Login extends React.Component {
 		.then((response) => response.json())
 		.then((responseJson) => {
 			this.props.setAuthentication('JWT '+responseJson.token);
+
+			configConsts.socket.connect();
+			configConsts.socket.emit('loggedIn', responseJson.userid);
 			this.props.history.push('/conversations');
       	})
 		.catch((error) => {

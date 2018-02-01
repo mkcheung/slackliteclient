@@ -14,11 +14,11 @@ class ListOfUsers extends React.Component{
 	render(){
 		return(
 			<div>
-				<ul>
+				<ul ref="userList">
 					{
 						Object
 						.keys(this.props.users)
-						.map(key => <User key={key} index={key} selectChannel={this.props.selectChannel} details={this.props.users[key]}/>)
+						.map(key => <User key={key} ref="singleUser" index={key} selectChannel={this.props.selectChannel} details={this.props.users[key]}/>)
 					}
 				</ul>
 			</div>

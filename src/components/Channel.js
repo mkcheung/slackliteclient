@@ -2,10 +2,8 @@ import Message from './Message';
 import React from 'react';
 import ChatInput from './ChatInput';
 import './channel.css'
-import io from "socket.io-client";
 // Connect to socket.io server
 import * as configConsts from '../config/config';
-const socket = io.connect(configConsts.chatServerDomain);
 
 class Channel extends React.Component{
 	
@@ -16,7 +14,7 @@ class Channel extends React.Component{
 	}
 
 	componentWillUnmount() {
-		socket.emit('leave conversation', this.channelId);
+		configConsts.socket.emit('leave conversation', this.channelId);
 	}
 
 	componentDidMount() {
@@ -42,7 +40,7 @@ class Channel extends React.Component{
 						{
 							Object
 							.keys(messages)
-							.map(key => <Message key={key} index={key} details={messages[key]} />)
+							.map(key => <Message key={key} index={key} authToken={this.props.authToken} details={messages[key]} />)
 						}
 					</ul>
 				</div>

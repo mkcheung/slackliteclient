@@ -16,7 +16,7 @@ class ListofGroups extends React.Component{
 		const { tags, suggestions, open, onOpenModal, onCloseModal } = this.props;
 		return(
 			<div>
-				<ul>
+				<ul ref="groupList">
 					{
 						Object
 						.keys(this.props.groups)

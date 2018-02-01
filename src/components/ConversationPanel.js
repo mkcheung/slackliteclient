@@ -7,9 +7,8 @@ import ListOfUsers from './ListOfUsers';
 import ListOfGroups from './ListOfGroups';
 import { Route, Redirect, browserHistory }  from 'react-router';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
-import io from 'socket.io-client';
 import * as configConsts from '../config/config';
-const socket = io.connect(configConsts.chatServerDomain);
+import { findDOMNode }  from 'react-dom';
 var NotificationSystem = require('react-notification-system');
 
 const renderMergedProps = (component, ...rest) => {
@@ -51,9 +50,15 @@ class ConversationPanel extends React.Component{
         this.handleAddition = this.handleAddition.bind(this);
         this.handleDrag = this.handleDrag.bind(this);
         this.handleCreateGroup = this.handleCreateGroup.bind(this);
+        this.refreshUsers = this.refreshUsers.bind(this);
 
 
-		socket.on('refresh messages', (data) => {
+		configConsts.socket.on('refresh users', (users) => {
+			console.log(users);
+			this.refreshUsers(users);
+	    });
+
+		configConsts.socket.on('refresh messages', (data) => {
 			
 			let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+data;
 			return fetch(url, {
@@ -128,8 +133,22 @@ class ConversationPanel extends React.Component{
 		}
 	}	
 
+	refreshUsers(users){
+
+		if (this.props.checkIfLoggedIn()){
+			this.setState({
+				users:users
+			});
+		}
+	}
+
 	logoutAndRedirect(){
-		socket.emit('disconnect');
+		const loggedOutUserData = decode(this.props.authToken);
+		configConsts.socket.off('refresh users');
+		configConsts.socket.off('refresh messages');
+		configConsts.socket.emit('logged out', loggedOutUserData._id);
+		configConsts.socket.disconnect();
+
 		this.props.logout();
 		this.props.history.push('/');
 	}
@@ -150,7 +169,17 @@ class ConversationPanel extends React.Component{
 		this.onCloseModal();
 	}
 
-	selectChannel(userid, email){
+	selectChannel(event, userid, email){
+
+		event.preventDefault();
+		let targetClass = event.target;
+		let listItems = findDOMNode(this.refs.userRef).getElementsByClassName('list-group-item');
+		for( let i = 0 ; i < listItems.length; i++){
+			listItems[i].style = 'white';
+		}
+
+		event.currentTarget.style.backgroundColor = configConsts.selectedUser;
+
   		var channelUsers = '&message_user_ids='+userid;
   		var channelType = '&singular=true';
   		var channelName = '&channelName='+email;
@@ -166,9 +195,9 @@ class ConversationPanel extends React.Component{
 		.then((response) => response.json())
 		.then((responseJson) => {
 			if(!self.isEmptyObject(self.state.channel)){
-				socket.emit('leave conversation', self.state.channel);
+				configConsts.socket.emit('leave conversation', self.state.channel);
 			}
-			socket.emit('enter conversation', responseJson._id);
+			configConsts.socket.emit('enter conversation', responseJson._id);
 
 			let directedTo = null;
 			const usersInChannel = responseJson.channelUsers;
@@ -203,9 +232,9 @@ class ConversationPanel extends React.Component{
 		.then((response) => response.json())
 		.then((responseJson) => {
 			if(!self.isEmptyObject(self.state.channel)){
-				socket.emit('leave conversation', self.state.channel[0]._id);
+				configConsts.socket.emit('leave conversation', self.state.channel[0]._id);
 			}
-			socket.emit('enter conversation', groupChannelId);
+			configConsts.socket.emit('enter conversation', groupChannelId);
 			this.setState({
 				channel:[groupChannelId],
 				messages:responseJson,
@@ -315,12 +344,14 @@ class ConversationPanel extends React.Component{
 						 handleAddition={this.handleAddition}
 						 handleDrag={this.handleDrag}
 						 open={this.state.open}
+						 ref='groupRef'
 						/>
 						<h2>Users</h2>
 						<ListOfUsers
 						 users={this.state.users}
 						 authToken={this.props.authToken}
 						 selectChannel={this.selectChannel}
+						 ref='userRef'
 						/>
 					</div>
 					<div className="col-9">
