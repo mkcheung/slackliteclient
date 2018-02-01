@@ -1,5 +1,5 @@
 import React from 'react';
-const loggedInIcon = require('../icons/icons8-communicate-16.png');
+import * as configConsts from '../config/config';
 
 class User extends React.Component{
 	render(){
@@ -8,7 +8,7 @@ class User extends React.Component{
 
 		if(details.loggedIn){
 			return(
-				<li ref="userInList" className="list-group-item" onClick={(e) => this.props.selectChannel(e, details._id, details.email)}><img style={{ paddingRight: 5 }} src={loggedInIcon}/> {details.email}
+				<li ref="userInList" className="list-group-item" onClick={(e) => this.props.selectChannel(e, details._id, details.email)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email}
 				</li>
 			);
 		} else if (!details.loggedIn){

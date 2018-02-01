@@ -178,7 +178,7 @@ class ConversationPanel extends React.Component{
 			listItems[i].style = 'white';
 		}
 
-		event.currentTarget.style.backgroundColor = '#E7FFE7';
+		event.currentTarget.style.backgroundColor = configConsts.selectedUser;
 
   		var channelUsers = '&message_user_ids='+userid;
   		var channelType = '&singular=true';

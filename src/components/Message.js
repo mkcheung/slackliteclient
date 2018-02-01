@@ -1,6 +1,7 @@
 import React from 'react';
 import Moment from 'react-moment';
 import decode from 'jwt-decode';
+import * as configConsts from '../config/config';
 
 class Message extends React.Component{
 	render(){
@@ -8,7 +9,7 @@ class Message extends React.Component{
 			if(this.props.details.user._id == currentUserData._id) {
 
 				return(
-					<li style={{float:'right',clear:'both',backgroundColor:'#334CFF',color:'white',listStyle:'none'}}>
+					<li style={configConsts.currentUserMessageStyle}>
 						<span>{this.props.details.user.email} <Moment format="MM-DD-YYYY hh:mm a">{this.props.details.created}</Moment></span>
 						<br/>
 						<span>{this.props.details.message}</span>
@@ -17,7 +18,7 @@ class Message extends React.Component{
 			} else {
 
 				return(
-					<li style={{float:'left',clear: 'both',backgroundColor:'#C9E1E5',listStyle:'none'}}>
+					<li style={configConsts.interlocutorUserMessageStyle}>
 						<span>{this.props.details.user.email} <Moment format="MM-DD-YYYY hh:mm a">{this.props.details.created}</Moment></span>
 						<br/>
 						<span>{this.props.details.message}</span>
