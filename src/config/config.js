@@ -2,7 +2,7 @@
 import io from 'socket.io-client';
 
 // Settings configured here will be merged into the final config object.
-export const chatServerDomain = 'https://multislacklite-cajatvnhbq.now.sh/';
+export const chatServerDomain = 'https://mkcheung-multichat.now.sh/';
 export const socket = io.connect(chatServerDomain);
 
 // styles
