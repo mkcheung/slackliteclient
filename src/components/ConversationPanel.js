@@ -44,6 +44,7 @@ class ConversationPanel extends React.Component{
 		this.logoutAndRedirect=this.logoutAndRedirect.bind(this);
 		this.isEmptyObject=this.isEmptyObject.bind(this);
 		this.addGroupChannel=this.addGroupChannel.bind(this);
+		this.getGroupChannels=this.getGroupChannels.bind(this);
 		this.onOpenModal=this.onOpenModal.bind(this);
 		this.onCloseModal=this.onCloseModal.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
@@ -51,10 +52,10 @@ class ConversationPanel extends React.Component{
         this.handleDrag = this.handleDrag.bind(this);
         this.handleCreateGroup = this.handleCreateGroup.bind(this);
         this.refreshUsers = this.refreshUsers.bind(this);
+        this.removeSelectedIndicator = this.removeSelectedIndicator.bind(this);
 
 
 		configConsts.socket.on('refresh users', (users) => {
-			console.log(users);
 			this.refreshUsers(users);
 	    });
 
@@ -80,33 +81,21 @@ class ConversationPanel extends React.Component{
 				console.error(error);
 			});
 	    });
+
+		configConsts.socket.on('refresh groups', () => {
+			this.getGroupChannels();
+		});
 	}
 
 	async componentWillMount(){
 		if (!this.props.checkIfLoggedIn()){
 			this.props.history.push('/');
 		}
-		var url = configConsts.chatServerDomain + 'channels/getGroupChannels';
+
 		var userUrl = configConsts.chatServerDomain + 'users';
 
 		try{
-			const res =	await fetch(url, {
-					  method: 'GET',
-					  headers: {
-					    'Authorization': this.props.authToken,
-					    'Content-Type': 'application/json'
-					  }
-					});
-
-			let groupChannels = await res.json().then((responseJson) => {
-						let groups = [];
-						for(let key in responseJson){
-							groups.push(responseJson[key].email);
-						}
-						this.setState({
-							groups:responseJson
-						});
-			      	});
+			this.getGroupChannels();
 
 			const resUser =	await fetch(userUrl, {
 					  method: 'GET',
@@ -142,6 +131,36 @@ class ConversationPanel extends React.Component{
 		}
 	}
 
+	removeSelectedIndicator(isolatedRef){
+
+		let listItems = findDOMNode(isolatedRef).getElementsByClassName('list-group-item');
+		for( let i = 0 ; i < listItems.length; i++){
+			listItems[i].style = 'white';
+		}
+	}
+
+	async getGroupChannels(){
+
+		const url = configConsts.chatServerDomain + 'channels/getGroupChannels';
+		const res =	await fetch(url, {
+		  method: 'GET',
+		  headers: {
+		    'Authorization': this.props.authToken,
+		    'Content-Type': 'application/json'
+		  }
+		});
+
+		let groupChannels = await res.json().then((responseJson) => {
+			let groups = [];
+			for(let key in responseJson){
+				groups.push(responseJson[key].email);
+			}
+			this.setState({
+				groups:responseJson
+			});
+      	});
+	}
+
 	logoutAndRedirect(){
 		const loggedOutUserData = decode(this.props.authToken);
 		configConsts.socket.off('refresh users');
@@ -165,6 +184,7 @@ class ConversationPanel extends React.Component{
 	addGroupChannel(groupChannel) {
 		let groupChannels = this.state.groups;
 		groupChannels.push(groupChannel);
+		configConsts.socket.emit('new group');
 		this.setState({ groups: groupChannels });
 		this.onCloseModal();
 	}
@@ -173,10 +193,8 @@ class ConversationPanel extends React.Component{
 
 		event.preventDefault();
 		let targetClass = event.target;
-		let listItems = findDOMNode(this.refs.userRef).getElementsByClassName('list-group-item');
-		for( let i = 0 ; i < listItems.length; i++){
-			listItems[i].style = 'white';
-		}
+		this.removeSelectedIndicator(this.refs.userRef);
+		this.removeSelectedIndicator(this.refs.groupRef);
 
 		event.currentTarget.style.backgroundColor = configConsts.selectedUser;
 
@@ -219,9 +237,14 @@ class ConversationPanel extends React.Component{
 		});
 	}
 
-	selectGroupChannel(groupChannelId, groupName){
+	selectGroupChannel(event, groupChannelId, groupName){
 		let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+groupChannelId;
 		var self = this;
+
+		this.removeSelectedIndicator(this.refs.userRef);
+		this.removeSelectedIndicator(this.refs.groupRef);
+		
+		event.currentTarget.style.backgroundColor = configConsts.selectedUser;
 		return fetch(url, {
 		  method: 'GET',
 		  headers: {

@@ -8,12 +8,12 @@ class User extends React.Component{
 
 		if(details.loggedIn){
 			return(
-				<li ref="userInList" className="list-group-item" onClick={(e) => this.props.selectChannel(e, details._id, details.email)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email}
+				<li ref="userInList" className="list-group-item" onClick={(event) => this.props.selectChannel(event, details._id, details.email)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email}
 				</li>
 			);
 		} else if (!details.loggedIn){
 			return(
-				<li ref="userInList" className="list-group-item" onClick={(e) => this.props.selectChannel(e, details._id, details.email)} >
+				<li ref="userInList" className="list-group-item" onClick={(event) => this.props.selectChannel(event, details._id, details.email)} >
 					{details.email}
 				</li>
 			);
