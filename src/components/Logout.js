@@ -1,8 +1,10 @@
 import React from 'react';
+import { Button } from 'reactstrap';
 
 const Logout = (props) => {
 	return(
-		<button onClick={props.logoutAndRedirect}>Logout</button>
+		<Button color="primary" onClick={props.logoutAndRedirect}>Logout</Button>
+
 	);
 }
 

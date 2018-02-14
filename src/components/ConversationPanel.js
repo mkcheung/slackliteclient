@@ -9,6 +9,8 @@ import { Route, Redirect, browserHistory }  from 'react-router';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
 import * as configConsts from '../config/config';
 import { findDOMNode }  from 'react-dom';
+import { Container, Row, Col, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+
 var NotificationSystem = require('react-notification-system');
 
 const renderMergedProps = (component, ...rest) => {
@@ -347,12 +349,20 @@ class ConversationPanel extends React.Component{
         let logoutButton = <Logout logoutAndRedirect={this.logoutAndRedirect}/>;
 
 		return (
-			<div className="container-fluid">
-				{logoutButton}
-				<button onClick={this.onOpenModal}>Create Group:</button>
-				<div className="row">
-					<div className="col-3">
-						<h2>Groups</h2>
+			<Container>
+				<Row>
+					<Col xs="3" className="text-center">
+						<Button color="primary" onClick={this.onOpenModal}>Create Group:</Button>
+					</Col>
+					<Col xs="7">
+					</Col>
+					<Col xs="2">
+						{logoutButton}
+					</Col>
+				</Row>
+				<Row>
+					<Col xs="3">
+						<h2 className="text-center">Groups</h2>
 						<ListOfGroups
 						 groups={this.state.groups}
 						 authToken={this.props.authToken}
@@ -369,24 +379,24 @@ class ConversationPanel extends React.Component{
 						 open={this.state.open}
 						 ref='groupRef'
 						/>
-						<h2>Users</h2>
+						<h2 className="text-center">Users</h2>
 						<ListOfUsers
 						 users={this.state.users}
 						 authToken={this.props.authToken}
 						 selectChannel={this.selectChannel}
 						 ref='userRef'
 						/>
-					</div>
-					<div className="col-9">
+					</Col>
+					<Col xs="auto">
 						{
 							Object
 							.keys(this.state.channel)
 							.map(key => <Channel key={key} index={key} authToken={this.props.authToken} channelId={this.state.channel[key]} channelName={this.state.channelName} messages={this.state.messages} />)
 						}
-					</div>
-				</div>
+					</Col>
+				</Row>
 		        <NotificationSystem ref="notificationSystem" />
-			</div>
+			</Container>
 		)
 	}
 }
