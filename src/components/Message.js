@@ -10,18 +10,22 @@ class Message extends React.Component{
 
 				return(
 					<li style={configConsts.currentUserMessageStyle}>
-						<span>{this.props.details.user.email} <Moment format="MM-DD-YYYY hh:mm a">{this.props.details.created}</Moment></span>
-						<br/>
-						<span>{this.props.details.message}</span>
+						<div style={configConsts.textBoxStyleCurrent}>
+							<span>{this.props.details.user.email} <Moment format="MM-DD-YYYY hh:mm a">{this.props.details.created}</Moment></span>
+							<br/>
+							<span>{this.props.details.message}</span>
+						</div>
 					</li>
 				);
 			} else {
 
 				return(
 					<li style={configConsts.interlocutorUserMessageStyle}>
-						<span>{this.props.details.user.email} <Moment format="MM-DD-YYYY hh:mm a">{this.props.details.created}</Moment></span>
-						<br/>
-						<span>{this.props.details.message}</span>
+						<div style={configConsts.textBoxStyleInterlocutor}>
+							<span>{this.props.details.user.email} <Moment format="MM-DD-YYYY hh:mm a">{this.props.details.created}</Moment></span>
+							<br/>
+							<span>{this.props.details.message}</span>
+						</div>
 					</li>
 				);
 

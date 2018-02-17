@@ -349,14 +349,14 @@ class ConversationPanel extends React.Component{
         let logoutButton = <Logout logoutAndRedirect={this.logoutAndRedirect}/>;
 
 		return (
-			<Container>
+			<Container className="container-fluid">
 				<Row>
-					<Col xs="3" className="text-center">
+					<Col xs="2" className="text-center">
 						<Button color="primary" onClick={this.onOpenModal}>Create Group:</Button>
 					</Col>
-					<Col xs="7">
+					<Col xs="9">
 					</Col>
-					<Col xs="2">
+					<Col xs="1">
 						{logoutButton}
 					</Col>
 				</Row>
@@ -387,7 +387,7 @@ class ConversationPanel extends React.Component{
 						 ref='userRef'
 						/>
 					</Col>
-					<Col xs="auto">
+					<Col xs="9">
 						{
 							Object
 							.keys(this.state.channel)

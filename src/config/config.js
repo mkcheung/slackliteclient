@@ -6,8 +6,10 @@ export const chatServerDomain = 'http://localhost:3000/';
 export const socket = io.connect(chatServerDomain);
 
 // styles
-export const currentUserMessageStyle = {height:'75px',width:'315px',borderRadius:'15px',float:'right',clear:'both',backgroundColor:'#334CFF',color:'white',listStyle:'none'};
-export const interlocutorUserMessageStyle = {height:'75px',width:'315px',borderRadius:'15px',float:'left',clear: 'both',backgroundColor:'#C9E1E5',listStyle:'none'};
+export const currentUserMessageStyle = {float:'right',clear:'both',color:'white',listStyle:'none', margin:'5px', whiteSpace: 'normal', wordWrap: 'break-word'};
+export const interlocutorUserMessageStyle = {float:'left',clear: 'both',listStyle:'none', margin:'5px', whiteSpace: 'normal', wordWrap: 'break-word'};
+export const textBoxStyleCurrent = {width: '400px', overflow:'auto', borderRadius:'15px',backgroundColor:'#334CFF',padding:'20px'};
+export const textBoxStyleInterlocutor = {width: '400px', overflow:'auto', borderRadius:'15px',backgroundColor:'#C9E1E5',padding:'20px'};
 export const selectedUser = '#E7FFE7'
 export const loggedInIconPadding = { paddingRight: 5 };
 export const loggedInIcon = require('../icons/icons8-communicate-16.png');
