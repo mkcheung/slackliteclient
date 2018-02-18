@@ -7,6 +7,7 @@ import ConversationPanel from './components/ConversationPanel';
 import { BrowserRouter, Redirect, Route, Link, Switch, browserHistory  } from 'react-router-dom';
 import { isLoggedIn } from './util/AuthServices';
 import './index.css';
+import 'bootstrap/dist/css/bootstrap.css';
 
 const Root = () => {
 	return(

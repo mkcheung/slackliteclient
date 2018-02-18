@@ -33,16 +33,20 @@ class Channel extends React.Component{
 	render(){
 		const {channelId, channelName, index, messages} = this.props;
 		return (
-			<div className="row">
-				<h1>{channelName}</h1>
-				<div className='col-12'  id='transcript' ref='transcript'  style={{height: '600px', overflow:'auto'}}>
-					<ul>
-						{
-							Object
-							.keys(messages)
-							.map(key => <Message key={key} index={key} authToken={this.props.authToken} details={messages[key]} />)
-						}
-					</ul>
+			<div >
+				<div className="row">
+					<div className='col-12'>
+						<h1>{channelName}</h1>
+						<div id='transcript' ref='transcript'  style={{height: '600px', overflow:'auto'}}>
+							<ul>
+								{
+									Object
+									.keys(messages)
+									.map(key => <Message key={key} index={key} authToken={this.props.authToken} details={messages[key]} />)
+								}
+							</ul>
+						</div>
+					</div>
 				</div>
 				<div className="row">
 					<div className='col-12'>

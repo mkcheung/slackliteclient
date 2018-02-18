@@ -15,6 +15,7 @@ class ChatInput extends React.Component{
 		// React ES6 does not bind 'this' to event handlers by default
 		this.submitHandler = this.submitHandler.bind(this);
 		this.textChangeHandler = this.textChangeHandler.bind(this);
+		this.onEnterPress = this.onEnterPress.bind(this);
 	}
 
 	textChangeHandler(event)  {
@@ -51,10 +52,18 @@ class ChatInput extends React.Component{
 		});
 	}
 
+	onEnterPress(event){
+		if(event.keyCode == 13 && event.shiftKey == false) {
+			event.preventDefault();
+			this.submitHandler(event);
+		}
+	}
+
 	render() {
 		return (
-			<form className="chat-input" onSubmit={this.submitHandler}>
-				<input type="text"
+			<form className="chat-input" onKeyDown={this.onEnterPress}>
+				<textarea type="text"
+					style={{width:'100%'}}
 					onChange={this.textChangeHandler}
 					value={this.state.chatInput}
 					placeholder="Write a message..."
