@@ -84,26 +84,30 @@ class Login extends React.Component {
 									<Button color="primary" onClick={this.onOpenModal}>Register User</Button>
 								</FormGroup>
 							</Form>
-							<Modal open={open} onClose={this.onCloseModal} little>
+							<Modal open={open} onClose={this.onCloseModal}>
 							<h2>New User Registration</h2>
-								<form onSubmit={this.handleRegisterSubmit}>
-									<br/>
-									<div className="form-group">
-										<label>First Name</label>
-										<input name="firstName" type="text" />
-										<br/>
-										<label>Last Name</label>
-										<input name="lastName" type="text" />
-										<br/>
-										<label>Email</label>
-										<input name="email" type="text" />
-										<br/>
-										<label>Password</label>
-										<input type="password" name="password" />
-										<br/>
-										<input type="submit" className="btn btn-primary"/>
-									</div>
-								</form>
+
+ 								<Form onSubmit={this.handleRegisterSubmit}>
+									<FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+										<Label className="mr-sm-2">First Name: </Label>
+										<Input name="firstName" type="text" />
+									</FormGroup>
+									<FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+										<Label className="mr-sm-2">Last Name: </Label>
+										<Input name="lastName" type="text" />
+									</FormGroup>
+									<FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+										<Label className="mr-sm-2">Email: </Label>
+										<Input name="email" type="text" />
+									</FormGroup>
+									<FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+										<Label className="mr-sm-2">Password: </Label>
+										<Input name="password" type="text" />
+									</FormGroup>
+									<FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+										<Button color="primary" className="btn btn-primary mr-sm-2">Submit</Button>
+									</FormGroup>
+								</Form>
 							</Modal>
 							<NotificationSystem ref="notificationSystem" />
 						</Nav>
@@ -165,7 +169,7 @@ class Login extends React.Component {
 			})
 			.then((response) => response.json())
 			.then((responseJson) => {
-				console.log(responseJson);
+				
 				if(typeof responseJson.errmsg != "undefined"){
 					this.notificationSystem.addNotification({
 					  message: "User could not be registered. Please try again.",
