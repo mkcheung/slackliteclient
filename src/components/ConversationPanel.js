@@ -195,8 +195,8 @@ class ConversationPanel extends React.Component{
 
 		event.preventDefault();
 		let targetClass = event.target;
-		this.removeSelectedIndicator(this.refs.userRef);
-		this.removeSelectedIndicator(this.refs.groupRef);
+		this.removeSelectedIndicator(this.userRef);
+		this.removeSelectedIndicator(this.groupRef);
 
 		event.currentTarget.style.backgroundColor = configConsts.selectedUser;
 
@@ -243,8 +243,8 @@ class ConversationPanel extends React.Component{
 		let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+groupChannelId;
 		var self = this;
 
-		this.removeSelectedIndicator(this.refs.userRef);
-		this.removeSelectedIndicator(this.refs.groupRef);
+		this.removeSelectedIndicator(this.userRef);
+		this.removeSelectedIndicator(this.groupRef);
 		
 		event.currentTarget.style.backgroundColor = configConsts.selectedUser;
 		return fetch(url, {
@@ -377,14 +377,15 @@ class ConversationPanel extends React.Component{
 						 handleAddition={this.handleAddition}
 						 handleDrag={this.handleDrag}
 						 open={this.state.open}
-						 ref='groupRef'
+						 ref={(ref) => this.groupRef = ref}
 						/>
 						<h2 className="text-center">Users</h2>
 						<ListOfUsers
 						 users={this.state.users}
 						 authToken={this.props.authToken}
 						 selectChannel={this.selectChannel}
-						 ref='userRef'
+						 ref={(ref) => this.userRef = ref}
+
 						/>
 					</Col>
 					<Col xs="9">
