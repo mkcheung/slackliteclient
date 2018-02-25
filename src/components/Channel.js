@@ -26,7 +26,7 @@ class Channel extends React.Component{
 	}
 
 	scrollToBottom(){
-	  var transcriptBlock = this.refs.transcript;
+	  var transcriptBlock = this.transcript;
 	  transcriptBlock.scrollTop = transcriptBlock.scrollHeight;
 	}
 
@@ -37,7 +37,7 @@ class Channel extends React.Component{
 				<div className="row">
 					<div className='col-12'>
 						<h1>{channelName}</h1>
-						<div id='transcript' ref='transcript'  style={{height: '600px', overflow:'auto'}}>
+						<div id='transcript' ref={(ref) => this.transcript = ref}  style={{height: '600px', overflow:'auto'}}>
 							<ul>
 								{
 									Object

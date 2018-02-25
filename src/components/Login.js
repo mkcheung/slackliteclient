@@ -44,7 +44,7 @@ class Login extends React.Component {
 	}
 
 	componentDidMount() {
-		this.notificationSystem = this.refs.notificationSystem;
+		this.notificationSystem = this.notifSys;
 	}
 
 	onOpenModal(){
@@ -109,7 +109,7 @@ class Login extends React.Component {
 									</FormGroup>
 								</Form>
 							</Modal>
-							<NotificationSystem ref="notificationSystem" />
+							<NotificationSystem ref={(ref) => this.notifSys = ref} />
 						</Nav>
 					</Collapse>
 				</Navbar>
