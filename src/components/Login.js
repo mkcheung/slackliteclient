@@ -117,77 +117,93 @@ class Login extends React.Component {
 		);
 	}
 
-	handleSubmit(event){
+	async handleSubmit(event){
 		event.preventDefault();
 		var email = event.target.email.value;
 		var password = event.target.password.value;
-		var url = configConsts.chatServerDomain + 'token';
-		return fetch(url, {
-		  method: 'POST',
-		  headers: {
-		    'Accept': 'application/json',
-		    'Content-Type': 'application/json'
-		  },
-		  body: JSON.stringify({
-		    email: email,
-		    password: password,
-		  })
-		})
-		.then((response) => response.json())
-		.then((responseJson) => {
-			this.props.setAuthentication('JWT '+responseJson.token);
+		let loginUrl = configConsts.chatServerDomain + 'token';
 
-			configConsts.socket.connect();
-			configConsts.socket.emit('loggedIn', responseJson.userid);
-			this.props.history.push('/conversations');
-      	})
-		.catch((error) => {
-			console.log(error);
-			console.error(error);
-		});
+		try {
+			const loginRes = await fetch(loginUrl, {
+				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					email: email,
+					password: password,
+				})
+			});
+
+			if(!loginRes.ok){
+				await loginRes.json().then((responseJson) => {
+					throw new Error(responseJson.message);
+				});
+			}
+
+			let loginStat = await loginRes.json().then((responseJson) => {
+
+				this.props.setAuthentication('JWT '+responseJson.token);
+
+				configConsts.socket.connect();
+				configConsts.socket.emit('loggedIn', responseJson.userid);
+				this.props.history.push('/conversations');
+	      	});
+		} catch(error) {
+			this.notificationSystem.addNotification({
+				message: error.message,
+				level: 'error'
+			});
+		}
 	}
 
-	handleRegisterSubmit(event){
+	async handleRegisterSubmit(event){
 		event.preventDefault();
 		var firstName = event.target.firstName.value;
 		var lastName = event.target.lastName.value;
 		var email = event.target.email.value;
 		var password = event.target.password.value;
-		var url = configConsts.chatServerDomain + 'users';
-		return fetch(url, {
-			method: 'POST',
-			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
+		var regUserUrl = configConsts.chatServerDomain + 'users';
+
+		try {
+
+			const regUser = await fetch(regUserUrl, {
+				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
 					firstName: firstName,
 					lastName: lastName,
 					email: email,
 					password: password
 				})
-			})
-			.then((response) => response.json())
-			.then((responseJson) => {
-				
-				if(typeof responseJson.errmsg != "undefined"){
-					this.notificationSystem.addNotification({
-					  message: "User could not be registered. Please try again.",
-					  level: 'error'
-					});
+			});
 
-				} else {
-					this.notificationSystem.addNotification({
-					  message: "New User Registered",
-					  level: 'success'
-					});
-				}
+			if(!regUser.ok){
+				await regUser.json().then((responseJson) => {
+					this.onCloseModal();
+					throw new Error(responseJson.message);
+				});
+			}
+
+			let regUserResult = await regUser.json().then((responseJson) => {
+
 				this.onCloseModal();
-			})
-			.catch((error) => {
-				console.log(error);
-				console.error(error);
-		});
+				this.notificationSystem.addNotification({
+					message: "New User Registered",
+					level: 'success'
+				});
+	      	});
+
+		} catch (error) {
+			this.notificationSystem.addNotification({
+				message: error.toString(),
+				level: 'error'
+			});
+		}
 	}
 }
 
