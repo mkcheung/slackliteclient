@@ -9,6 +9,7 @@ class ListOfUsers extends React.Component{
 
 	constructor(props){
 		super(props);
+		this.userListItems = new Map();
 	}
 
 	render(){
@@ -18,7 +19,7 @@ class ListOfUsers extends React.Component{
 					{
 						Object
 						.keys(this.props.users)
-						.map(key => <User key={key} ref={(ref) => this.singleUser = ref} index={key} selectChannel={this.props.selectChannel} details={this.props.users[key]}/>)
+						.map(key => <User key={key} ref={c => this.userListItems.set(this.props.users[key]._id, c)} index={key} selectChannel={this.props.selectChannel} details={this.props.users[key]}/>)
 					}
 				</ul>
 			</div>

@@ -1,3 +1,4 @@
+import decode from 'jwt-decode';
 import Message from './Message';
 import React from 'react';
 import './channel.css'
@@ -43,7 +44,8 @@ class ChatInput extends React.Component{
 		})
 		.then((response) => response.json())
 		.then((responseJson) => {
-			configConsts.socket.emit('new message', channelId);
+			const currentUser = decode(this.props.authToken);
+			configConsts.socket.emit('new message', channelId, currentUser._id);
 			// Clear the input box
 			this.setState({ chatInput: '' });
       	})

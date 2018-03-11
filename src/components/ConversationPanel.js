@@ -61,9 +61,8 @@ class ConversationPanel extends React.Component{
 			this.refreshUsers(users);
 	    });
 
-		configConsts.socket.on('refresh messages', (data) => {
-			
-			let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+data;
+		configConsts.socket.on('refresh messages', (conversation) => {
+			let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+conversation;
 			return fetch(url, {
 			  method: 'GET',
 			  headers: {
@@ -83,6 +82,27 @@ class ConversationPanel extends React.Component{
 				console.error(error);
 			});
 	    });
+
+		configConsts.socket.on('signal message', (usersIdsInChannel) => {
+			const currentUser = decode(this.props.authToken);
+			for (let i = 0; i < usersIdsInChannel.length; i++){
+				if(currentUser._id == usersIdsInChannel[i]){
+					this.alertSound.play();
+				}
+			}
+		});
+
+		// configConsts.socket.on('signal message', (conversation, senderId) => {
+		// 	console.log(this.props.authToken);
+		// 	const currentUser = decode(this.props.authToken);
+		// 	console.log(currentUser);
+		// 	if(currentUser._id != senderId){
+		// 		let sendingUser = this.userRef.userListItems.get(senderId);
+		// 		// let listItems = findDOMNode(this.userRef.userListItems.get(senderId)).getElementsByClassName('list-group-item');
+		// 		console.log(senderId);
+		// 		sendingUser.userInList.style.backgroundColor = configConsts.incomingMessage;
+		// 	}
+		// });
 
 		configConsts.socket.on('refresh groups', () => {
 			this.getGroupChannels();
@@ -397,6 +417,10 @@ class ConversationPanel extends React.Component{
 					</Col>
 				</Row>
 		        <NotificationSystem ref="notificationSystem" />
+		        <audio ref={(ref) =>  this.alertSound = ref }>
+					<source src={configConsts.alertTone} type="audio/mpeg" >
+					</source>
+				</audio>
 			</Container>
 		)
 	}
