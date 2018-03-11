@@ -43,6 +43,7 @@ class ConversationPanel extends React.Component{
 		}
 		this.selectChannel=this.selectChannel.bind(this);
 		this.selectGroupChannel=this.selectGroupChannel.bind(this);
+		this.getUserRelatedChannels=this.getUserRelatedChannels.bind(this);
 		this.logoutAndRedirect=this.logoutAndRedirect.bind(this);
 		this.isEmptyObject=this.isEmptyObject.bind(this);
 		this.addGroupChannel=this.addGroupChannel.bind(this);
@@ -83,26 +84,20 @@ class ConversationPanel extends React.Component{
 			});
 	    });
 
-		configConsts.socket.on('signal message', (usersIdsInChannel) => {
+		configConsts.socket.on('signal message', (usersIdsInChannel, senderId) => {
+
 			const currentUser = decode(this.props.authToken);
 			for (let i = 0; i < usersIdsInChannel.length; i++){
+
 				if(currentUser._id == usersIdsInChannel[i]){
+					let msgFromUserFlag = findDOMNode(this.userRef.userList).getElementsByClassName('list-group-item channel_'+senderId);
+					msgFromUserFlag[0].style.backgroundColor = configConsts.incomingMessage;
+					console.log(configConsts.incomingMessage);
+					console.log(msgFromUserFlag[0]);
 					this.alertSound.play();
 				}
 			}
 		});
-
-		// configConsts.socket.on('signal message', (conversation, senderId) => {
-		// 	console.log(this.props.authToken);
-		// 	const currentUser = decode(this.props.authToken);
-		// 	console.log(currentUser);
-		// 	if(currentUser._id != senderId){
-		// 		let sendingUser = this.userRef.userListItems.get(senderId);
-		// 		// let listItems = findDOMNode(this.userRef.userListItems.get(senderId)).getElementsByClassName('list-group-item');
-		// 		console.log(senderId);
-		// 		sendingUser.userInList.style.backgroundColor = configConsts.incomingMessage;
-		// 	}
-		// });
 
 		configConsts.socket.on('refresh groups', () => {
 			this.getGroupChannels();
@@ -127,22 +122,41 @@ class ConversationPanel extends React.Component{
 					  }
 					});
 
-			let options = [];
 			let theUsers = await resUser.json().then((responseJson) => {
 						
-						for(let key in responseJson){
-							options.push(responseJson[key].email);
-						}
-						this.setState({
-							users:responseJson,
-							suggestions:options
-						});
-			      	});
+				let testRun = this.getUserRelatedChannels(responseJson);
+	      	});
 		} catch(error) {
 			console.log(error);
 			console.error(error);
 		}
 	}	
+
+	async getUserRelatedChannels(otherUsers){
+
+		var associatedChannelsUrl = configConsts.chatServerDomain + 'channel';
+
+		const userChannels = await fetch(associatedChannelsUrl, {
+				  method: 'GET',
+				  headers: {
+				    'Authorization': this.props.authToken,
+				    'Content-Type': 'application/json'
+				  }
+				});
+
+		let options = [];
+		let testRun = await userChannels.json().then((channelsJson) => {
+			console.log('step');
+			console.log(channelsJson);
+			for(let key in otherUsers){
+				options.push(otherUsers[key].email);
+			}
+			this.setState({
+				users:otherUsers,
+				suggestions:options
+			});
+		});
+	}
 
 	refreshUsers(users){
 
