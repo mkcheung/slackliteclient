@@ -201,6 +201,7 @@ class ConversationPanel extends React.Component{
 		const loggedOutUserData = decode(this.props.authToken);
 		configConsts.socket.off('refresh users');
 		configConsts.socket.off('refresh messages');
+		configConsts.socket.off('signal message');
 		configConsts.socket.emit('logged out', loggedOutUserData._id);
 		configConsts.socket.disconnect();
 
