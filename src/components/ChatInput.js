@@ -29,7 +29,7 @@ class ChatInput extends React.Component{
 
 		let channelId = this.props.channelId;
 		let message = this.chatText.value;
-
+		const currentUser = decode(this.props.authToken);
 		var url = configConsts.chatServerDomain + 'message';
 		return fetch(url, {
 		  method: 'POST',
@@ -44,7 +44,6 @@ class ChatInput extends React.Component{
 		})
 		.then((response) => response.json())
 		.then((responseJson) => {
-			const currentUser = decode(this.props.authToken);
 			configConsts.socket.emit('new message', channelId, currentUser._id);
 			// Clear the input box
 			this.setState({ chatInput: '' });

@@ -92,8 +92,6 @@ class ConversationPanel extends React.Component{
 				if(currentUser._id == usersIdsInChannel[i]){
 					let msgFromUserFlag = findDOMNode(this.userRef.userList).getElementsByClassName('list-group-item channel_'+senderId);
 					msgFromUserFlag[0].style.backgroundColor = configConsts.incomingMessage;
-					console.log(configConsts.incomingMessage);
-					console.log(msgFromUserFlag[0]);
 					this.alertSound.play();
 				}
 			}
@@ -146,8 +144,6 @@ class ConversationPanel extends React.Component{
 
 		let options = [];
 		let testRun = await userChannels.json().then((channelsJson) => {
-			console.log('step');
-			console.log(channelsJson);
 			for(let key in otherUsers){
 				options.push(otherUsers[key].email);
 			}
@@ -159,7 +155,6 @@ class ConversationPanel extends React.Component{
 	}
 
 	refreshUsers(users){
-
 		if (this.props.checkIfLoggedIn()){
 			this.setState({
 				users:users
