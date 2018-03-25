@@ -53,6 +53,7 @@ class Channel extends React.Component{
 						<ChatInput 
 							channelId={channelId} 
 							conn={this.conn} 
+							channelType={this.props.channelType} 
 							index={this.props.index} 
 							authToken={this.props.authToken} 
 							submitHandler={this.submitHandler}

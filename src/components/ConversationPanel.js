@@ -110,6 +110,7 @@ class ConversationPanel extends React.Component{
 		var userUrl = configConsts.chatServerDomain + 'users';
 
 		try{
+			console.log('prior');
 			this.getGroupChannels();
 
 			const resUser =	await fetch(userUrl, {
@@ -171,7 +172,7 @@ class ConversationPanel extends React.Component{
 	}
 
 	async getGroupChannels(){
-
+console.log('inside ggc');
 		const url = configConsts.chatServerDomain + 'channels/getGroupChannels';
 		const res =	await fetch(url, {
 		  method: 'GET',
@@ -182,6 +183,7 @@ class ConversationPanel extends React.Component{
 		});
 
 		let groupChannels = await res.json().then((responseJson) => {
+			console.log(responseJson);
 			let groups = [];
 			for(let key in responseJson){
 				groups.push(responseJson[key].email);
@@ -422,7 +424,7 @@ class ConversationPanel extends React.Component{
 						{
 							Object
 							.keys(this.state.channel)
-							.map(key => <Channel key={key} index={key} authToken={this.props.authToken} channelId={this.state.channel[key]} channelName={this.state.channelName} messages={this.state.messages} />)
+							.map(key => <Channel key={key} index={key} authToken={this.props.authToken} channelId={this.state.channel[key]} channelType={this.state.channel[key].type} channelName={this.state.channelName} messages={this.state.messages} />)
 						}
 					</Col>
 				</Row>

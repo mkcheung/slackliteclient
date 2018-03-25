@@ -29,6 +29,7 @@ class ChatInput extends React.Component{
 
 		let channelId = this.props.channelId;
 		let message = this.chatText.value;
+		let channelType = this.props.channelType;
 		const currentUser = decode(this.props.authToken);
 		var url = configConsts.chatServerDomain + 'message';
 		return fetch(url, {
@@ -39,6 +40,7 @@ class ChatInput extends React.Component{
 		  },
 		  body: JSON.stringify({
 		    channelId: channelId,
+		    channelType: channelType,
 		    message:message
 		  })
 		})
