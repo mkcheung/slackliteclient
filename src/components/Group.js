@@ -5,14 +5,11 @@ import * as configConsts from '../config/config';
 
 class Group extends React.Component{
 	render(){
-
 		const currentUserData = decode(this.props.authToken);
 		const {details, index} = this.props;
-		console.log(details);
 
 		let msgCount = '';
 		let listOfUsers = details.userMsgCount;
-		console.log(listOfUsers);
 		if(details.userMsgCount.length > 0){
 			let userMsgCount = details.userMsgCount.pop();
 			msgCount = (userMsgCount.messageCount > 0) ? userMsgCount.messageCount : '';

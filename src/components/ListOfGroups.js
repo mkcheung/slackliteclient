@@ -20,7 +20,7 @@ class ListofGroups extends React.Component{
 					{
 						Object
 						.keys(this.props.groups)
-						.map(key => <Group key={key} index={key} selectGroupChannel={this.props.selectGroupChannel} details={this.props.groups[key]}/>)
+						.map(key => <Group key={key} authToken={this.props.authToken} index={key} selectGroupChannel={this.props.selectGroupChannel} details={this.props.groups[key]}/>)
 					}
 				</ul>
 				<Modal open={open} onClose={onCloseModal} little>

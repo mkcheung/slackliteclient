@@ -172,7 +172,6 @@ class ConversationPanel extends React.Component{
 	}
 
 	async getGroupChannels(){
-console.log('inside ggc');
 		const url = configConsts.chatServerDomain + 'channels/getGroupChannels';
 		const res =	await fetch(url, {
 		  method: 'GET',
@@ -183,13 +182,12 @@ console.log('inside ggc');
 		});
 
 		let groupChannels = await res.json().then((responseJson) => {
-			console.log(responseJson);
 			let groups = [];
 			for(let key in responseJson){
-				groups.push(responseJson[key].email);
+				groups.push(responseJson[key]);
 			}
 			this.setState({
-				groups:responseJson
+				groups:groups
 			});
       	});
 	}
