@@ -244,6 +244,7 @@ class ConversationPanel extends React.Component{
 		})
 		.then((response) => response.json())
 		.then((responseJson) => {
+
 			if(!self.isEmptyObject(self.state.channel)){
 				configConsts.socket.emit('leave conversation', self.state.channel);
 			}
