@@ -3,15 +3,14 @@ import Message from './Message';
 import React from 'react';
 import './channel.css'
 import * as configConsts from '../config/config';
+import { connect } from 'react-redux';
+import { textInput, processNewMessage } from '../actions/chat';
 
 class ChatInput extends React.Component{
 	
 	constructor(props) {
 		super(props);
-		// Set initial state of the chatInput so that it is not undefined
-		this.state = { 
-			chatInput: '' 
-		};
+
 
 		// React ES6 does not bind 'this' to event handlers by default
 		this.submitHandler = this.submitHandler.bind(this);
@@ -20,7 +19,7 @@ class ChatInput extends React.Component{
 	}
 
 	textChangeHandler(event)  {
-		this.setState({ chatInput: event.target.value });
+		this.props.inputChat(event.target.value);
 	}
 
 
@@ -32,27 +31,8 @@ class ChatInput extends React.Component{
 		let channelType = this.props.channelType;
 		const currentUser = decode(this.props.authToken);
 		var url = configConsts.chatServerDomain + 'message';
-		return fetch(url, {
-		  method: 'POST',
-		  headers: {
-		    'Authorization': this.props.authToken,
-		    'Content-Type': 'application/json'
-		  },
-		  body: JSON.stringify({
-		    channelId: channelId,
-		    channelType: channelType,
-		    message:message
-		  })
-		})
-		.then((response) => response.json())
-		.then((responseJson) => {
-			configConsts.socket.emit('new message', channelId, currentUser._id);
-			// Clear the input box
-			this.setState({ chatInput: '' });
-      	})
-		.catch((error) => {
-			console.log(error);
-		});
+		
+		this.props.processMessage(url,this.props.authToken,channelType,channelId,message,currentUser._id);
 	}
 
 	onEnterPress(event){
@@ -68,7 +48,7 @@ class ChatInput extends React.Component{
 				<textarea type="text"
 					style={{width:'100%'}}
 					onChange={this.textChangeHandler}
-					value={this.state.chatInput}
+					value={this.props.chatInput}
 					placeholder="Write a message..."
 					ref={(input) => { this.chatText = input}}
 					required
@@ -78,4 +58,17 @@ class ChatInput extends React.Component{
 	}
 }
 
-export default ChatInput;
+const mapStateToProps = (state) => {
+    return {
+        chatInput: state.textInput,
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        inputChat: (msg) => dispatch(textInput(msg)),
+        processMessage: (url, authToken, channelType, channelId, message, currUserId) => dispatch(processNewMessage(url, authToken, channelType, channelId, message, currUserId))
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ChatInput);

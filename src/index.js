@@ -6,14 +6,24 @@ import NotFound from './components/NotFound';
 import ConversationPanel from './components/ConversationPanel';
 import { BrowserRouter, Redirect, Route, Link, Switch, browserHistory  } from 'react-router-dom';
 import { isLoggedIn } from './util/AuthServices';
+import { Provider } from 'react-redux';
+import configureStore from './store/configureStore';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.css';
 
+let initialState = {
+	textInput:''
+};
+
+const store = configureStore(initialState); // You can also pass in an initialState here
+
 const Root = () => {
 	return(
-		<BrowserRouter history={browserHistory}>
-			<App />
-		</BrowserRouter>
+	    <Provider store={store}>
+			<BrowserRouter history={browserHistory}>
+				<App />
+			</BrowserRouter>
+	    </Provider>
 	)
 }
 
