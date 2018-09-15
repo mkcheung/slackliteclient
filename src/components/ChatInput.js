@@ -11,7 +11,6 @@ class ChatInput extends React.Component{
 	constructor(props) {
 		super(props);
 
-
 		// React ES6 does not bind 'this' to event handlers by default
 		this.submitHandler = this.submitHandler.bind(this);
 		this.textChangeHandler = this.textChangeHandler.bind(this);

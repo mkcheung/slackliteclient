@@ -8,14 +8,13 @@ import { BrowserRouter, Redirect, Route, Link, Switch, browserHistory  } from 'r
 import { isLoggedIn } from './util/AuthServices';
 import { Provider } from 'react-redux';
 import configureStore from './store/configureStore';
+import thunk from 'redux-thunk';
+import { createStore, applyMiddleware } from 'redux';
+import rootReducer from './reducers';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.css';
 
-let initialState = {
-	textInput:''
-};
-
-const store = configureStore(initialState); // You can also pass in an initialState here
+const store = createStore(rootReducer, applyMiddleware(thunk));
 
 const Root = () => {
 	return(

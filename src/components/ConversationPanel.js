@@ -10,6 +10,8 @@ import 'react-responsive-modal/lib/react-responsive-modal.css';
 import * as configConsts from '../config/config';
 import { findDOMNode }  from 'react-dom';
 import { Container, Row, Col, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import { connect } from 'react-redux';
+import { channelPicked, establishMsgs, retrieveGroupChannels, setModalOpenStatus, reloadUsers, establishTags, setUsersAndSuggestions } from '../actions/conversationDashboard';
 
 var NotificationSystem = require('react-notification-system');
 
@@ -31,16 +33,6 @@ class ConversationPanel extends React.Component{
 
 	constructor(props){
 		super(props);
-		this.state={
-			channel:{},
-			groups:[],
-			messages:[],
-			users:[],
-			suggestions:[],
-            tags:[],
-            open:false,
-            channelName:null
-		}
 		this.selectChannel=this.selectChannel.bind(this);
 		this.selectGroupChannel=this.selectGroupChannel.bind(this);
 		this.getUserRelatedChannels=this.getUserRelatedChannels.bind(this);
@@ -73,10 +65,8 @@ class ConversationPanel extends React.Component{
 			})
 			.then((response) => response.json())
 			.then((responseJson) => {
-				this.setState({
-					messages:responseJson
-				});
 
+				this.props.pullMsgs(responseJson);
 	      	})
 			.catch((error) => {
 				console.log(error);
@@ -110,8 +100,7 @@ class ConversationPanel extends React.Component{
 		var userUrl = configConsts.chatServerDomain + 'users';
 
 		try{
-			console.log('prior');
-			this.getGroupChannels();
+			await this.getGroupChannels();
 
 			const resUser =	await fetch(userUrl, {
 					  method: 'GET',
@@ -148,18 +137,15 @@ class ConversationPanel extends React.Component{
 			for(let key in otherUsers){
 				options.push(otherUsers[key].email);
 			}
-			this.setState({
-				users:otherUsers,
-				suggestions:options
-			});
+
+			this.props.loadUsersAndSuggestions(otherUsers, options);
 		});
 	}
 
 	refreshUsers(users){
 		if (this.props.checkIfLoggedIn()){
-			this.setState({
-				users:users
-			});
+
+			this.props.loadUsers(users);
 		}
 	}
 
@@ -186,9 +172,8 @@ class ConversationPanel extends React.Component{
 			for(let key in responseJson){
 				groups.push(responseJson[key]);
 			}
-			this.setState({
-				groups:groups
-			});
+
+			this.props.pullGroups(groups);
       	});
 	}
 
@@ -217,7 +202,7 @@ class ConversationPanel extends React.Component{
 		let groupChannels = this.state.groups;
 		groupChannels.push(groupChannel);
 		configConsts.socket.emit('new group');
-		this.setState({ groups: groupChannels });
+		this.props.pullGroups(groupChannels);
 		this.onCloseModal();
 	}
 
@@ -245,8 +230,8 @@ class ConversationPanel extends React.Component{
 		.then((response) => response.json())
 		.then((responseJson) => {
 
-			if(!self.isEmptyObject(self.state.channel)){
-				configConsts.socket.emit('leave conversation', self.state.channel);
+			if(!self.isEmptyObject(self.props.channel)){
+				configConsts.socket.emit('leave conversation', self.props.channel);
 			}
 			configConsts.socket.emit('enter conversation', responseJson._id);
 
@@ -259,11 +244,7 @@ class ConversationPanel extends React.Component{
 				}
 			}
 
-			this.setState({
-				channel:[responseJson._id],
-				messages:responseJson.messages,
-				channelName:directedTo
-			});
+			this.props.channelSelect(responseJson._id, responseJson.messages, directedTo);
       	})
 		.catch((error) => {
 			console.log(error);
@@ -287,15 +268,12 @@ class ConversationPanel extends React.Component{
 		})
 		.then((response) => response.json())
 		.then((responseJson) => {
-			if(!self.isEmptyObject(self.state.channel)){
-				configConsts.socket.emit('leave conversation', self.state.channel[0]._id);
+			if(!self.isEmptyObject(self.props.channel)){
+				configConsts.socket.emit('leave conversation', self.props.channel[0]._id);
 			}
 			configConsts.socket.emit('enter conversation', groupChannelId);
-			this.setState({
-				channel:[groupChannelId],
-				messages:responseJson,
-				channelName:groupName
-			});
+
+			this.props.channelSelect(groupChannelId, responseJson, groupName);
       	})
 		.catch((error) => {
 			console.log(error);
@@ -304,17 +282,17 @@ class ConversationPanel extends React.Component{
 	}
 
 	onOpenModal(){
-    	this.setState({ open: true });
+    	this.props.setModal(true);
   	};
  
 	onCloseModal(){
-		this.setState({ open: false });
+    	this.props.setModal(false);
 	};
 
 	handleDelete(i) {
         let tags = this.state.tags;
         tags.splice(i, 1);
-        this.setState({tags: tags});
+    	this.props.loadTags(tags);
     }
  
     handleAddition(tag) {
@@ -330,7 +308,7 @@ class ConversationPanel extends React.Component{
             id: tagId,
             text: tag
         });
-        this.setState({tags: tags});
+    	this.props.loadTags(tags);
     }
  
     handleDrag(tag, currPos, newPos) {
@@ -341,7 +319,7 @@ class ConversationPanel extends React.Component{
         tags.splice(newPos, 0, tag);
  
         // re-render 
-        this.setState({ tags: tags });
+    	this.props.loadTags(tags);
     }
  
     handleCreateGroup(event) {
@@ -351,8 +329,8 @@ class ConversationPanel extends React.Component{
 		let channelName = event.target.groupName.value;
 
 
-		for (let key in this.state.tags){
-			userIds.push(this.state.tags[key].id);
+		for (let key in this.props.tags){
+			userIds.push(this.props.tags[key].id);
 		}
 		var url = configConsts.chatServerDomain + 'channel';
 		return fetch(url, {
@@ -379,62 +357,137 @@ class ConversationPanel extends React.Component{
 	render(){
         let logoutButton = <Logout logoutAndRedirect={this.logoutAndRedirect}/>;
 
-		return (
-			<Container className="container-fluid">
-				<Row>
-					<Col xs="2" className="text-center">
-						<Button color="primary" onClick={this.onOpenModal}>Create Group:</Button>
-					</Col>
-					<Col xs="9">
-					</Col>
-					<Col xs="1">
-						{logoutButton}
-					</Col>
-				</Row>
-				<Row>
-					<Col xs="3">
-						<h2 className="text-center">Groups</h2>
-						<ListOfGroups
-						 groups={this.state.groups}
-						 authToken={this.props.authToken}
-						 tags={this.state.tags}
-						 suggestions={this.state.suggestions}
-						 selectGroupChannel={this.selectGroupChannel}
-						 addGroupChannel={this.addGroupChannel}
-						 handleCreateGroup={this.handleCreateGroup}
-						 onOpenModal={this.onOpenModal}
-						 onCloseModal={this.onCloseModal}
-						 handleDelete={this.handleDelete}
-						 handleAddition={this.handleAddition}
-						 handleDrag={this.handleDrag}
-						 open={this.state.open}
-						 ref={(ref) => this.groupRef = ref}
-						/>
-						<h2 className="text-center">Users</h2>
-						<ListOfUsers
-						 users={this.state.users}
-						 authToken={this.props.authToken}
-						 selectChannel={this.selectChannel}
-						 ref={(ref) => this.userRef = ref}
+		if(!this.isEmptyObject(this.props.channel)){
 
-						/>
-					</Col>
-					<Col xs="9">
-						{
-							Object
-							.keys(this.state.channel)
-							.map(key => <Channel key={key} index={key} authToken={this.props.authToken} channelId={this.state.channel[key]} channelType={this.state.channel[key].type} channelName={this.state.channelName} messages={this.state.messages} />)
-						}
-					</Col>
-				</Row>
-		        <NotificationSystem ref="notificationSystem" />
-		        <audio ref={(ref) =>  this.alertSound = ref }>
-					<source src={configConsts.alertTone} type="audio/mpeg" >
-					</source>
-				</audio>
-			</Container>
-		)
+			return (
+				<Container className="container-fluid">
+					<Row>
+						<Col xs="2" className="text-center">
+							<Button color="primary" onClick={this.onOpenModal}>Create Group:</Button>
+						</Col>
+						<Col xs="9">
+						</Col>
+						<Col xs="1">
+							{logoutButton}
+						</Col>
+					</Row>
+					<Row>
+						<Col xs="3">
+							<h2 className="text-center">Groups</h2>
+							<ListOfGroups
+							 groups={this.props.groups}
+							 authToken={this.props.authToken}
+							 tags={this.props.tags}
+							 suggestions={this.props.suggestions}
+							 selectGroupChannel={this.selectGroupChannel}
+							 addGroupChannel={this.addGroupChannel}
+							 handleCreateGroup={this.handleCreateGroup}
+							 onOpenModal={this.onOpenModal}
+							 onCloseModal={this.onCloseModal}
+							 handleDelete={this.handleDelete}
+							 handleAddition={this.handleAddition}
+							 handleDrag={this.handleDrag}
+							 open={this.props.open}
+							 ref={(ref) => this.groupRef = ref}
+							/>
+							<h2 className="text-center">Users</h2>
+							<ListOfUsers
+							 users={this.props.users}
+							 authToken={this.props.authToken}
+							 selectChannel={this.selectChannel}
+							 ref={(ref) => this.userRef = ref}
+
+							/>
+						</Col>
+						<Col xs="9">
+							<Channel authToken={this.props.authToken} channelId={this.props.channel}  channelName={this.props.channelName} messages={this.props.messages} />
+						</Col>
+					</Row>
+			        <NotificationSystem ref="notificationSystem" />
+			        <audio ref={(ref) =>  this.alertSound = ref }>
+						<source src={configConsts.alertTone} type="audio/mpeg" >
+						</source>
+					</audio>
+				</Container>
+			); 
+		} else {
+
+			return (
+				<Container className="container-fluid">
+					<Row>
+						<Col xs="2" className="text-center">
+							<Button color="primary" onClick={this.onOpenModal}>Create Group:</Button>
+						</Col>
+						<Col xs="9">
+						</Col>
+						<Col xs="1">
+							{logoutButton}
+						</Col>
+					</Row>
+					<Row>
+						<Col xs="3">
+							<h2 className="text-center">Groups</h2>
+							<ListOfGroups
+							 groups={this.props.groups}
+							 authToken={this.props.authToken}
+							 tags={this.props.tags}
+							 suggestions={this.props.suggestions}
+							 selectGroupChannel={this.selectGroupChannel}
+							 addGroupChannel={this.addGroupChannel}
+							 handleCreateGroup={this.handleCreateGroup}
+							 onOpenModal={this.onOpenModal}
+							 onCloseModal={this.onCloseModal}
+							 handleDelete={this.handleDelete}
+							 handleAddition={this.handleAddition}
+							 handleDrag={this.handleDrag}
+							 open={this.props.open}
+							 ref={(ref) => this.groupRef = ref}
+							/>
+							<h2 className="text-center">Users</h2>
+							<ListOfUsers
+							 users={this.props.users}
+							 authToken={this.props.authToken}
+							 selectChannel={this.selectChannel}
+							 ref={(ref) => this.userRef = ref}
+
+							/>
+						</Col>
+						<Col xs="9">
+						</Col>
+					</Row>
+			        <NotificationSystem ref="notificationSystem" />
+			        <audio ref={(ref) =>  this.alertSound = ref }>
+						<source src={configConsts.alertTone} type="audio/mpeg" >
+						</source>
+					</audio>
+				</Container>
+			);
+		}
 	}
 }
 
-export default ConversationPanel;
+const mapStateToProps = (state) => {
+    return {
+        channel: state.conversationDashboard.channel,
+        messages: state.conversationDashboard.messages,
+        channelName: state.conversationDashboard.channelName,
+        groups: state.conversationDashboard.groups,
+        open: state.conversationDashboard.open,
+        users: state.conversationDashboard.users,
+        tags: state.conversationDashboard.tags
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        channelSelect: (channel, messages, channelName) => dispatch(channelPicked(channel, messages, channelName)),
+        pullMsgs: (msgs) => dispatch(establishMsgs(msgs)),
+        pullGroups: (groups) => dispatch(retrieveGroupChannels(groups)),
+        setModal: (status) => dispatch(setModalOpenStatus(status)),
+        loadUsers: (users) => dispatch(reloadUsers(users)),
+        loadTags: (tags) => dispatch(establishTags(tags)),
+        loadUsersAndSuggestions: (users, suggestions) => dispatch(setUsersAndSuggestions(users, suggestions)),
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ConversationPanel);
