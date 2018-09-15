@@ -7,6 +7,8 @@ import 'react-responsive-modal/lib/react-responsive-modal.css';
 import * as configConsts from '../config/config';
 import { Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 var NotificationSystem = require('react-notification-system');
+import { connect } from 'react-redux';
+import { openRegistrationModal, setIsModalOpenStatus } from '../actions/login';
 
 const renderMergedProps = (component, ...rest) => {
   const finalProps = Object.assign({}, ...rest);
@@ -25,10 +27,7 @@ const PropsRoute = ({ component, ...rest }) => {
 class Login extends React.Component {
 	constructor(){
 		super();
-		this.state={
-			open: false,
-			isOpen: false
-		}
+
 		this.notificationSystem= null,
 		this.handleSubmit=this.handleSubmit.bind(this);
 		this.handleRegisterSubmit=this.handleRegisterSubmit.bind(this);
@@ -48,27 +47,24 @@ class Login extends React.Component {
 	}
 
 	onOpenModal(){
-    	this.setState({ open: true });
+		this.props.openRegModal(true);
   	};
  
 	onCloseModal(){
-		this.setState({ open: false });
+		this.props.openRegModal(false);
 	};
 
 	toggle() {
-		this.setState({
-			isOpen: !this.state.isOpen
-		});
+		this.props.toggleModalOnOff(this.props.isOpen);
 	}
 
 	render(){
-		const { open } = this.state;
 		return(
 			<div className="container-fluid">
 				<Navbar color="faded" light expand="md">
 				<NavbarBrand href="/">MultiChat</NavbarBrand>
 				<NavbarToggler onClick={this.toggle} />
-					<Collapse isOpen={this.state.isOpen} navbar>
+					<Collapse isOpen={this.props.isOpen} navbar>
 						<Nav className="ml-auto" navbar>
  							<Form inline onSubmit={this.handleSubmit}>
 								<FormGroup className="mb-2 mr-sm-2 mb-sm-0">
@@ -84,7 +80,7 @@ class Login extends React.Component {
 									<Button color="primary" onClick={this.onOpenModal}>Register User</Button>
 								</FormGroup>
 							</Form>
-							<Modal open={open} onClose={this.onCloseModal}>
+							<Modal open={this.props.open} onClose={this.onCloseModal}>
 							<h2>New User Registration</h2>
 
  								<Form onSubmit={this.handleRegisterSubmit}>
@@ -207,4 +203,18 @@ class Login extends React.Component {
 	}
 }
 
-export default Login;
+const mapStateToProps = (state) => {
+    return {
+        open: state.login.open,
+        isOpen: state.login.isOpen,
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        openRegModal: (open) => dispatch(openRegistrationModal(open)),
+        toggleModalOnOff: (isOpen) => dispatch(setIsModalOpenStatus(isOpen)),
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
