@@ -1,5 +1,3 @@
-import * as configConsts from '../config/config';
-
 export function channelPicked(channel, messages, channelName) {
     return {
         type: 'CHANNEL_PICKED',

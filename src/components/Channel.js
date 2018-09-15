@@ -56,8 +56,7 @@ class Channel extends React.Component{
 							channelType={this.props.channelType} 
 							index={this.props.index} 
 							authToken={this.props.authToken} 
-							submitHandler={this.submitHandler}
-							updateMessages={this.updateMessages} />
+							submitHandler={this.submitHandler} />
 					</div>
 				</div>
 			</div>
