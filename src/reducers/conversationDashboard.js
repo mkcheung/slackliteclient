@@ -2,6 +2,7 @@ const initialState = {
 	channel:{},
 	groups:[],
 	messages:[],
+    msgCounts:[],
 	users:[],
 	suggestions:[],
 	tags:[],
@@ -34,6 +35,7 @@ export default (state=initialState, action) => {
 		        open: action.open,
             };
         case 'RELOAD_USERS':
+        console.log(action.users);
             return {
             	...state,
 		        users: action.users,
@@ -47,6 +49,7 @@ export default (state=initialState, action) => {
             return {
             	...state,
 			    users: action.users,
+			    msgCounts: action.msgCounts,
 			    suggestions: action.suggestions
             };
         default:

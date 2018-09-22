@@ -133,18 +133,25 @@ class ConversationPanel extends React.Component{
 				});
 
 		let options = [];
+		let msgCountRecords = [];
+		const currentUser = decode(this.props.authToken);
 		let testRun = await userChannels.json().then((channelsJson) => {
 			for(let key in otherUsers){
+				let umcs = otherUsers[key].userMsgCount;
+				for(let umcKey in umcs){
+					if(umcs[umcKey].recipient == currentUser._id){
+
+						msgCountRecords.push(umcs[umcKey]);
+					}
+				}
 				options.push(otherUsers[key].email);
 			}
-
-			this.props.loadUsersAndSuggestions(otherUsers, options);
+			this.props.loadUsersAndSuggestions(otherUsers, msgCountRecords, options);
 		});
 	}
 
 	refreshUsers(users){
 		if (this.props.checkIfLoggedIn()){
-
 			this.props.loadUsers(users);
 		}
 	}
@@ -206,9 +213,9 @@ class ConversationPanel extends React.Component{
 		this.onCloseModal();
 	}
 
-	selectChannel(event, userid, email){
+	async selectChannel(event, userid, email, msgCountId){
 
-		event.preventDefault();
+		event.preventDefault();	
 		let targetClass = event.target;
 		this.removeSelectedIndicator(this.userRef);
 		this.removeSelectedIndicator(this.groupRef);
@@ -219,7 +226,9 @@ class ConversationPanel extends React.Component{
   		var channelType = '&singular=true';
   		var channelName = '&channelName='+email;
   		var requestUrl = configConsts.chatServerDomain + 'channels/getChannel?'+channelUsers+channelType+channelName;
+  		var msgCountResetUrl = configConsts.chatServerDomain + 'messages/resetMessageCount';
 		var self = this;
+		let t = this.props.authToken;
 		return fetch(requestUrl, {
 		  method: 'GET',
 		  headers: {
@@ -244,7 +253,65 @@ class ConversationPanel extends React.Component{
 				}
 			}
 
-			this.props.channelSelect(responseJson._id, responseJson.messages, directedTo);
+			let chId = responseJson._id;
+			let msgList = responseJson.messages;
+			let testCapture = fetch(msgCountResetUrl, {
+			  method: 'POST',
+			  headers: {
+			    'Authorization': t,
+			    'Content-Type': 'application/json'
+			  },
+				body: JSON.stringify({
+					msgCountId: msgCountId,
+				})
+			})
+			.then((response) => {
+
+				let userUrl = configConsts.chatServerDomain + 'users';
+
+				const resUser =	fetch(userUrl, {
+					  method: 'GET',
+					  headers: {
+					    'Authorization': this.props.authToken,
+					    'Content-Type': 'application/json'
+					  }
+					}).then((response) => response.json())
+					.then((otherUsers) => {
+
+						let associatedChannelsUrl = configConsts.chatServerDomain + 'channel';
+
+						const userChannels = fetch(associatedChannelsUrl, {
+							  method: 'GET',
+							  headers: {
+							    'Authorization': this.props.authToken,
+							    'Content-Type': 'application/json'
+							  }
+							}).then((response) => response.json())
+							.then((channelsJson) => {
+
+								let options = [];
+								let msgCountRecords = [];
+								const currentUser = decode(this.props.authToken);
+
+								for(let key in otherUsers){
+									let umcs = otherUsers[key].userMsgCount;
+									for(let umcKey in umcs){
+										if(umcs[umcKey].recipient == currentUser._id){
+
+											msgCountRecords.push(umcs[umcKey]);
+										}
+									}
+									options.push(otherUsers[key].email);
+								}
+								console.log(msgCountRecords);
+								this.props.loadUsersAndSuggestions(otherUsers, msgCountRecords, options);
+								console.log('this tier X');
+							});
+							console.log('this tier Y');
+						self.props.channelSelect(chId, msgList, directedTo);
+
+			      	});
+			});
       	})
 		.catch((error) => {
 			console.log(error);
@@ -358,7 +425,6 @@ class ConversationPanel extends React.Component{
         let logoutButton = <Logout logoutAndRedirect={this.logoutAndRedirect}/>;
 
 		if(!this.isEmptyObject(this.props.channel)){
-
 			return (
 				<Container className="container-fluid">
 					<Row>
@@ -393,6 +459,7 @@ class ConversationPanel extends React.Component{
 							<h2 className="text-center">Users</h2>
 							<ListOfUsers
 							 users={this.props.users}
+							 msgCounts={this.props.msgCounts}
 							 authToken={this.props.authToken}
 							 selectChannel={this.selectChannel}
 							 ref={(ref) => this.userRef = ref}
@@ -411,7 +478,6 @@ class ConversationPanel extends React.Component{
 				</Container>
 			); 
 		} else {
-
 			return (
 				<Container className="container-fluid">
 					<Row>
@@ -446,6 +512,7 @@ class ConversationPanel extends React.Component{
 							<h2 className="text-center">Users</h2>
 							<ListOfUsers
 							 users={this.props.users}
+							 msgCounts={this.props.msgCounts}
 							 authToken={this.props.authToken}
 							 selectChannel={this.selectChannel}
 							 ref={(ref) => this.userRef = ref}
@@ -470,6 +537,7 @@ const mapStateToProps = (state) => {
     return {
         channel: state.conversationDashboard.channel,
         messages: state.conversationDashboard.messages,
+        msgCounts: state.conversationDashboard.msgCounts,
         channelName: state.conversationDashboard.channelName,
         groups: state.conversationDashboard.groups,
         open: state.conversationDashboard.open,
@@ -486,7 +554,7 @@ const mapDispatchToProps = (dispatch) => {
         setModal: (status) => dispatch(setModalOpenStatus(status)),
         loadUsers: (users) => dispatch(reloadUsers(users)),
         loadTags: (tags) => dispatch(establishTags(tags)),
-        loadUsersAndSuggestions: (users, suggestions) => dispatch(setUsersAndSuggestions(users, suggestions)),
+        loadUsersAndSuggestions: (users, msgCounts, suggestions) => dispatch(setUsersAndSuggestions(users, msgCounts, suggestions)),
     };
 };
 

@@ -41,10 +41,11 @@ export function establishTags(tags) {
     };
 }
 
-export function setUsersAndSuggestions(users, suggestions) {
+export function setUsersAndSuggestions(users, msgCounts, suggestions) {
     return {
         type: 'SET_USERS_AND_SUGG',
         users,
+        msgCounts,
         suggestions
     };
 }

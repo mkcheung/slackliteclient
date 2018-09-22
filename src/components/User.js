@@ -18,10 +18,6 @@ class User extends React.Component{
 		// 	msgCount = (userMsgCount.messageCount > 0) ? userMsgCount.messageCount : '';
 		// 	console.log(msgCount);
 		// }
-
-		this.state={
-			msgCount:msgCount
-		}
 	}
 
 	render(){
@@ -33,7 +29,7 @@ class User extends React.Component{
 		// let msgCount = '';
 		// 	console.log(details);
 		// 	console.log(details._id);
-		// 	console.log(details.userMsgCount.length);
+			let umc = details.userMsgCount.pop();
 		// if(details.userMsgCount.length > 0 
 		// 	&& (details.userMsgCount[0].sender == details._id)  
 		// 	&& (details.userMsgCount[0].recipient == currentUserData._id) ){
@@ -42,18 +38,30 @@ class User extends React.Component{
 		// 	console.log(msgCount);
 		// }
 		if(details.loggedIn){
-			console.log('1--'+this.state.msgCount);
-			return(
-				<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email} <Badge color="success">{this.state.msgCount}</Badge> 
-				</li>
-			);
+			if(umc && umc.messageCount !== 0){
+				return(
+					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umc._id)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email} <Badge color="success">{umc.messageCount}</Badge> 
+					</li>
+				);
+			} else {
+				return(
+					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umc._id)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email}  
+					</li>
+				);
+			}
 		} else if (!details.loggedIn){
-			console.log('2--'+this.state.msgCount);
-			return(
-				<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email)} >
-					{details.email} <Badge color="success">{this.state.msgCount}</Badge> 
-				</li>
-			);
+			if(umc && umc.messageCount !== 0){
+				return(
+					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umc._id)} >
+						{details.email} <Badge color="success">{umc.messageCount}</Badge> 
+					</li>
+				);
+			} else {
+				return(
+					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umc._id)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email}  
+					</li>
+				);
+			}
 		}
 	}
 }
