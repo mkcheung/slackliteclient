@@ -5,7 +5,8 @@ import ConversationPanel from './ConversationPanel';
 import NotFound from './NotFound';
 import { BrowserRouter, Redirect, Route, Link, Switch, browserHistory, withRouter  } from 'react-router-dom';
 import { isTokenExpired, getTokenExpirationDate } from '../util/AuthServices';
-// import { renderMergedProps, PropsRoute } from '../util/RouteMethods';
+import { connect } from 'react-redux';
+import { performLogin, performLogout } from '../actions/app';
 
 const renderMergedProps = (component, ...rest) => {
   const finalProps = Object.assign({}, ...rest);
@@ -29,32 +30,19 @@ class App extends Component {
     this.setAuthentication = this.setAuthentication.bind(this);
     this.checkIfLoggedIn = this.checkIfLoggedIn.bind(this);
     this.logout = this.logout.bind(this);
-    this.state = {
-      isLoggedIn:false,
-      authToken:null
-    };
   }
 
   setAuthentication(authToken) {
-    this.setState({
-      isLoggedIn:true,
-      authToken:authToken
-    });
+    this.props.toLogin(authToken);
   }
 
   logout() {
-    this.setState({
-      isLoggedIn:null,
-      authToken:null
-    });
+    this.props.toLogout();
   }
 
   checkIfLoggedIn(){
-    if(isTokenExpired(this.state.authToken)){
-      this.setState({
-        isLoggedIn:false,
-        authToken:null
-      });
+    if(isTokenExpired(this.props.authToken)){
+      this.props.toLogout();
       return false;
     } else{
       return true;
@@ -69,14 +57,14 @@ class App extends Component {
                 exact 
                 path='/' 
                 component={Login} 
-                authToken={this.state.authToken}
+                authToken={this.props.authToken}
                 setAuthentication={this.setAuthentication}
                 checkIfLoggedIn={this.checkIfLoggedIn}
               />
               <PropsRoute 
                 path='/conversations' 
                 component={ConversationPanel} 
-                authToken={this.state.authToken}
+                authToken={this.props.authToken}
                 checkIfLoggedIn={this.checkIfLoggedIn}
                 logout={this.logout}
               />
@@ -87,4 +75,18 @@ class App extends Component {
   }
 }
 
-export default withRouter(App);
+const mapStateToProps = (state) => {
+    return {
+        isLoggedIn: state.app.isLoggedIn,
+        authToken: state.app.authToken,
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        toLogin: (authToken) => dispatch(performLogin(authToken)),
+        toLogout: () => dispatch(performLogout()),
+    };
+};
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));

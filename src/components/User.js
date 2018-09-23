@@ -10,14 +10,7 @@ class User extends React.Component{
 		const {details, index} = this.props;
 		console.log(details);
 		let userMsgCount = details.userMsgCount.pop();
-		let msgCount = (userMsgCount.messageCount > 0) ? userMsgCount.messageCount : '';
-		// if(details.userMsgCount.length > 0 
-		// 	&& (details.userMsgCount[0].sender == details._id)  
-		// 	&& (details.userMsgCount[0].recipient == currentUserData._id) ){
-		// 	let userMsgCount = details.userMsgCount.pop();
-		// 	msgCount = (userMsgCount.messageCount > 0) ? userMsgCount.messageCount : '';
-		// 	console.log(msgCount);
-		// }
+		let msgCount = ((userMsgCount.messageCount) && userMsgCount.messageCount > 0) ? userMsgCount.messageCount : '';
 	}
 
 	render(){
@@ -26,39 +19,31 @@ class User extends React.Component{
 		const currentUserData = decode(this.props.authToken);
 
 		let classIdentifier = "list-group-item channel_" + details._id;
-		// let msgCount = '';
-		// 	console.log(details);
-		// 	console.log(details._id);
-			let umc = details.userMsgCount.pop();
-		// if(details.userMsgCount.length > 0 
-		// 	&& (details.userMsgCount[0].sender == details._id)  
-		// 	&& (details.userMsgCount[0].recipient == currentUserData._id) ){
-		// 	let userMsgCount = details.userMsgCount.pop();
-		// 	msgCount = (userMsgCount.messageCount > 0) ? userMsgCount.messageCount : '';
-		// 	console.log(msgCount);
-		// }
+		let umc = details.userMsgCount.pop();
+
+		let umcId = (umc) ? umc._id : null;
 		if(details.loggedIn){
 			if(umc && umc.messageCount !== 0){
 				return(
-					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umc._id)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email} <Badge color="success">{umc.messageCount}</Badge> 
+					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umcId)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email} <Badge color="success">{umc.messageCount}</Badge> 
 					</li>
 				);
 			} else {
 				return(
-					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umc._id)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email}  
+					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umcId)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email}  
 					</li>
 				);
 			}
 		} else if (!details.loggedIn){
 			if(umc && umc.messageCount !== 0){
 				return(
-					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umc._id)} >
+					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umcId)} >
 						{details.email} <Badge color="success">{umc.messageCount}</Badge> 
 					</li>
 				);
 			} else {
 				return(
-					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umc._id)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email}  
+					<li ref={(ref) => this.userInList = ref} className={classIdentifier} onClick={(event) => this.props.selectChannel(event, details._id, details.email, umcId)}><img style={configConsts.loggedInIconPadding} src={configConsts.loggedInIcon}/> {details.email}  
 					</li>
 				);
 			}

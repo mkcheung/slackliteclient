@@ -10,8 +10,7 @@ class Group extends React.Component{
 
 		let msgCount = '';
 		let listOfUsers = details.userMsgCount;
-		
-		if(details.userMsgCount.length > 0
+		if(details.userMsgCount && details.userMsgCount.length > 0
 			&& (details.userMsgCount[0].sender != currentUserData._id)){
 			let userMsgCount = details.userMsgCount.pop();
 			msgCount = (userMsgCount.messageCount > 0) ? userMsgCount.messageCount : '';

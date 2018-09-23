@@ -51,7 +51,9 @@ class ConversationPanel extends React.Component{
 
 
 		configConsts.socket.on('refresh users', (users) => {
-			this.refreshUsers(users);
+			const currentUser = decode(this.props.authToken);
+			console.log(currentUser._id);
+			this.refreshUsers(users, currentUser._id);
 	    });
 
 		configConsts.socket.on('refresh messages', (conversation) => {
@@ -150,9 +152,26 @@ class ConversationPanel extends React.Component{
 		});
 	}
 
-	refreshUsers(users){
+	async refreshUsers(users, currentUserId){
 		if (this.props.checkIfLoggedIn()){
-			this.props.loadUsers(users);
+			// this.props.loadUsers(users);
+
+			let options = [];
+			let msgCountRecords = [];
+
+			for(let key in users){
+				console.log(users[key]);
+				let umcs = users[key].userMsgCount;
+				for(let umcKey in umcs){
+					if(umcs[umcKey].recipient == currentUserId){
+
+						msgCountRecords.push(umcs[umcKey]);
+					}
+				}
+				options.push(users[key].email);
+			}
+			this.props.loadUsersAndSuggestions(users, msgCountRecords, options);
+
 		}
 	}
 
@@ -305,9 +324,7 @@ class ConversationPanel extends React.Component{
 								}
 								console.log(msgCountRecords);
 								this.props.loadUsersAndSuggestions(otherUsers, msgCountRecords, options);
-								console.log('this tier X');
 							});
-							console.log('this tier Y');
 						self.props.channelSelect(chId, msgList, directedTo);
 
 			      	});

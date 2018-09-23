@@ -35,7 +35,6 @@ export default (state=initialState, action) => {
 		        open: action.open,
             };
         case 'RELOAD_USERS':
-        console.log(action.users);
             return {
             	...state,
 		        users: action.users,

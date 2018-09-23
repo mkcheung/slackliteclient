@@ -141,7 +141,6 @@ class Login extends React.Component {
 			let loginStat = await loginRes.json().then((responseJson) => {
 
 				this.props.setAuthentication('JWT '+responseJson.token);
-
 				configConsts.socket.connect();
 				configConsts.socket.emit('loggedIn', responseJson.userid);
 				this.props.history.push('/conversations');
