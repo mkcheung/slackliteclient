@@ -10,7 +10,7 @@ class User extends React.Component{
 		const {details, index} = this.props;
 		console.log(details);
 		let userMsgCount = details.userMsgCount.pop();
-		let msgCount = ((userMsgCount.messageCount) && userMsgCount.messageCount > 0) ? userMsgCount.messageCount : '';
+		let msgCount = ((userMsgCount) && (userMsgCount.messageCount) && userMsgCount.messageCount > 0) ? userMsgCount.messageCount : '';
 	}
 
 	render(){
