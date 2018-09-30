@@ -12,10 +12,9 @@ class ListOfUsers extends React.Component{
 		this.userListItems = new Map();
 	}
 
-	async componentWillMount(){
+	componentWillMount(){
 		let msgCounts = this.props.msgCounts;
 		let users = this.props.users
-
 		for (let key in this.props.users){
 			for(let $i = 0; $i < this.props.msgCounts; $i++){
 				this.props.users[key].userMsgCount = (this.props.users[key].userMsgCount._id == this.props.msgCounts[$i].sender) ? [this.props.msgCounts[$i]] : this.props.users[key].userMsgCount;
