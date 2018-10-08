@@ -11,12 +11,6 @@ export default (state=initialState, action) => {
                 isLoggedIn:true,
                 authToken:action.authToken
             };
-        case 'LOGOUT':
-            return {
-            	...state,
-                isLoggedIn:null,
-                authToken:null
-            };
         default:
             return state;
     }

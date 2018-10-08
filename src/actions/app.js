@@ -6,8 +6,8 @@ export function performLogin(authToken) {
 }
 
 export function performLogout() {
-	console.log('logout being performed');
     return {
         type: 'LOGOUT',
     };
 }
+

@@ -48,7 +48,7 @@ class ConversationPanel extends React.Component{
         this.handleCreateGroup = this.handleCreateGroup.bind(this);
         this.refreshUsers = this.refreshUsers.bind(this);
         this.removeSelectedIndicator = this.removeSelectedIndicator.bind(this);
-
+        this.selectedUser = null;
 
 		configConsts.socket.on('refresh users', (users) => {
 			const currentUser = decode(this.props.authToken);
@@ -57,6 +57,7 @@ class ConversationPanel extends React.Component{
 	    });
 
 		configConsts.socket.on('refresh messages', (conversation) => {
+			console.log('msg refresh');
 			let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+conversation;
 			return fetch(url, {
 			  method: 'GET',
@@ -78,6 +79,7 @@ class ConversationPanel extends React.Component{
 
 		configConsts.socket.on('signal message', (usersIdsInChannel, senderId) => {
 
+			console.log('msg signal');
 			const currentUser = decode(this.props.authToken);
 			for (let i = 0; i < usersIdsInChannel.length; i++){
 
@@ -90,11 +92,12 @@ class ConversationPanel extends React.Component{
 		});
 
 		configConsts.socket.on('refresh groups', () => {
+			console.log('refresh group signal');
 			this.getGroupChannels();
 		});
 	}
 
-	async componentWillMount(){
+	async componentDidMount(){
 		if (!this.props.checkIfLoggedIn()){
 			this.props.history.push('/');
 		}
@@ -154,7 +157,6 @@ class ConversationPanel extends React.Component{
 
 	async refreshUsers(users, currentUserId){
 		if (this.props.checkIfLoggedIn()){
-			// this.props.loadUsers(users);
 
 			let options = [];
 			let msgCountRecords = [];
@@ -163,8 +165,11 @@ class ConversationPanel extends React.Component{
 				console.log(users[key]);
 				let umcs = users[key].userMsgCount;
 				for(let umcKey in umcs){
-					if(umcs[umcKey].recipient == currentUserId){
-
+					// if the other user is sending messages to the other user that already has the channel selected, don't show an increment
+					if(umcs[umcKey].recipient == currentUserId && this.props.channel == umcs[umcKey].channel){
+						umcs[umcKey].messageCount = 0;
+						msgCountRecords.push(umcs[umcKey]);
+					} else if(umcs[umcKey].recipient == currentUserId){
 						msgCountRecords.push(umcs[umcKey]);
 					}
 				}
@@ -210,7 +215,6 @@ class ConversationPanel extends React.Component{
 		configConsts.socket.off('signal message');
 		configConsts.socket.emit('logged out', loggedOutUserData._id);
 		configConsts.socket.disconnect();
-
 		this.props.logout();
 		this.props.history.push('/');
 	}
@@ -238,7 +242,6 @@ class ConversationPanel extends React.Component{
 		let targetClass = event.target;
 		this.removeSelectedIndicator(this.userRef);
 		this.removeSelectedIndicator(this.groupRef);
-
 		event.currentTarget.style.backgroundColor = configConsts.selectedUser;
 
   		var channelUsers = '&message_user_ids='+userid;
@@ -441,7 +444,19 @@ class ConversationPanel extends React.Component{
 	render(){
         let logoutButton = <Logout logoutAndRedirect={this.logoutAndRedirect}/>;
 
-		if(!this.isEmptyObject(this.props.channel)){
+        if (this.props.users === undefined || this.props.users.length == 0) {
+        	console.log('1');
+			return (
+				<Container className="container-fluid">
+					<Row>
+						<Col xs="12">
+							Loading....
+						</Col>
+					</Row>
+				</Container>
+				)
+		} else if(!this.isEmptyObject(this.props.channel)){
+        	console.log('2');
 			return (
 				<Container className="container-fluid">
 					<Row>
@@ -495,6 +510,7 @@ class ConversationPanel extends React.Component{
 				</Container>
 			); 
 		} else {
+        	console.log('3');
 			return (
 				<Container className="container-fluid">
 					<Row>
