@@ -181,7 +181,7 @@ class ConversationPanel extends React.Component{
 		for(let key in otherUsers){
 			options.push(otherUsers[key].email);
 		}
-		
+
 		this.props.loadUsersAndSuggestions(otherUsers, msgCountRecords, options);
 	}
 
@@ -192,17 +192,25 @@ class ConversationPanel extends React.Component{
 			let options = [];
 			let msgCountRecords = [];
 
-			for(let key in users){
-				let umcs = users[key].userMsgCount;
-				for(let umcKey in umcs){
-					// if the other user is sending messages to the other user that already has the channel selected, don't show an increment
-					if(umcs[umcKey].recipient == currentUserId && this.props.channel == umcs[umcKey].channel){
-						umcs[umcKey].messageCount = 0;
-						msgCountRecords.push(umcs[umcKey]);
-					} else if(umcs[umcKey].recipient == currentUserId){
-						msgCountRecords.push(umcs[umcKey]);
-					}
+
+			var msgCountsUrl = configConsts.chatServerDomain + 'msgCount';
+			const msgCountsData = await axios.get(msgCountsUrl, { 'headers': {
+					    'Authorization': this.props.authToken,
+					    'Content-Type': 'application/json'
+					  }
+				});
+			const msgCounts = msgCountsData.data;
+
+			for(let key in msgCounts){
+				if(msgCounts[key].recipient == currentUserId && this.props.channel == msgCounts[key].channel){
+					msgCounts[key].messageCount = 0;
+					msgCountRecords.push(msgCounts[key]);
+				} else if(msgCounts[key].recipient == currentUserId){
+					msgCountRecords.push(msgCounts[key]);
 				}
+			}
+			
+			for(let key in users){
 				options.push(users[key].email);
 			}
 
