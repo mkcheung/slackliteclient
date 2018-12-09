@@ -1,5 +1,6 @@
 import decode from 'jwt-decode';
 import React from 'react';
+import axios from 'axios';
 import Channel from './Channel';
 import Login from './Login';
 import Logout from './Logout';
@@ -11,7 +12,7 @@ import * as configConsts from '../config/config';
 import { findDOMNode }  from 'react-dom';
 import { Container, Row, Col, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import { connect } from 'react-redux';
-import { channelPicked, establishMsgs, retrieveGroupChannels, setModalOpenStatus, reloadUsers, establishTags, setUsersAndSuggestions } from '../actions/conversationDashboard';
+import { channelPicked, establishMsgs, retrieveGroupChannels, setModalOpenStatus, reloadUsers, establishTags, setUsersAndSuggestions, setUsersSuggestionsChannel } from '../actions/conversationDashboard';
 
 var NotificationSystem = require('react-notification-system');
 
@@ -52,12 +53,11 @@ class ConversationPanel extends React.Component{
 
 		configConsts.socket.on('refresh users', (users) => {
 			const currentUser = decode(this.props.authToken);
-			console.log(currentUser._id);
+			// console.log(currentUser._id);
 			this.refreshUsers(users, currentUser._id);
 	    });
 
-		configConsts.socket.on('refresh messages', (conversation) => {
-			console.log('msg refresh');
+		configConsts.socket.on('refresh messages', (conversation, senderId) => {
 			let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+conversation;
 			return fetch(url, {
 			  method: 'GET',
@@ -69,7 +69,35 @@ class ConversationPanel extends React.Component{
 			.then((response) => response.json())
 			.then((responseJson) => {
 
-				this.props.pullMsgs(responseJson);
+
+				let t = this.props.authToken;
+				const currentUser = decode(this.props.authToken);
+				var msgCountResetUrl = configConsts.chatServerDomain + 'messages/resetMessageCount';
+
+				//ensure that, if the current channel is selected, if the current user(recipient) receives a new
+				//message, the count remains set to zero.
+				if(this.props.channel == conversation && senderId != currentUser._id) {
+
+					let testCapture = fetch(msgCountResetUrl, {
+					  method: 'POST',
+					  headers: {
+					    'Authorization': t,
+					    'Content-Type': 'application/json'
+					  },
+						body: JSON.stringify({
+							channelId: conversation,
+							recipientId:currentUser._id,
+						})
+					})
+					.then((response) => {
+						this.props.pullMsgs(responseJson);
+					});
+				} else {
+
+					this.props.pullMsgs(responseJson);
+				}
+
+
 	      	})
 			.catch((error) => {
 				console.log(error);
@@ -115,9 +143,20 @@ class ConversationPanel extends React.Component{
 					  }
 					});
 
-			let theUsers = await resUser.json().then((responseJson) => {
-						
-				let testRun = this.getUserRelatedChannels(responseJson);
+
+
+
+			var msgCountsUrl = configConsts.chatServerDomain + 'msgCount';
+			const msgCountsData = await axios.get(msgCountsUrl, { 'headers': {
+					    'Authorization': this.props.authToken,
+					    'Content-Type': 'application/json'
+					  }
+				});
+			const msgCounts = msgCountsData.data;
+
+			let theUsers = await resUser.json().then((users) => {
+
+				let testRun = this.getUserRelatedChannels(users, msgCounts);
 	      	});
 		} catch(error) {
 			console.log(error);
@@ -125,44 +164,35 @@ class ConversationPanel extends React.Component{
 		}
 	}	
 
-	async getUserRelatedChannels(otherUsers){
+	async getUserRelatedChannels(otherUsers, msgCounts){
 
 		var associatedChannelsUrl = configConsts.chatServerDomain + 'channel';
-
-		const userChannels = await fetch(associatedChannelsUrl, {
-				  method: 'GET',
-				  headers: {
-				    'Authorization': this.props.authToken,
-				    'Content-Type': 'application/json'
-				  }
-				});
 
 		let options = [];
 		let msgCountRecords = [];
 		const currentUser = decode(this.props.authToken);
-		let testRun = await userChannels.json().then((channelsJson) => {
-			for(let key in otherUsers){
-				let umcs = otherUsers[key].userMsgCount;
-				for(let umcKey in umcs){
-					if(umcs[umcKey].recipient == currentUser._id){
 
-						msgCountRecords.push(umcs[umcKey]);
-					}
-				}
-				options.push(otherUsers[key].email);
+		for(let key in msgCounts){
+			if(msgCounts[key].recipient == currentUser._id){
+				msgCountRecords.push(msgCounts[key]);
 			}
-			this.props.loadUsersAndSuggestions(otherUsers, msgCountRecords, options);
-		});
+		}
+
+		for(let key in otherUsers){
+			options.push(otherUsers[key].email);
+		}
+		
+		this.props.loadUsersAndSuggestions(otherUsers, msgCountRecords, options);
 	}
 
 	async refreshUsers(users, currentUserId){
+		console.log('pop');
 		if (this.props.checkIfLoggedIn()){
 
 			let options = [];
 			let msgCountRecords = [];
 
 			for(let key in users){
-				console.log(users[key]);
 				let umcs = users[key].userMsgCount;
 				for(let umcKey in umcs){
 					// if the other user is sending messages to the other user that already has the channel selected, don't show an increment
@@ -175,6 +205,7 @@ class ConversationPanel extends React.Component{
 				}
 				options.push(users[key].email);
 			}
+
 			this.props.loadUsersAndSuggestions(users, msgCountRecords, options);
 
 		}
@@ -237,8 +268,9 @@ class ConversationPanel extends React.Component{
 	}
 
 	async selectChannel(event, userid, email, msgCountId){
-
+console.log(userid +' ' + email +' ' + msgCountId);
 		event.preventDefault();	
+		console.log('Channel select - MCID: ' + msgCountId)
 		let targetClass = event.target;
 		this.removeSelectedIndicator(this.userRef);
 		this.removeSelectedIndicator(this.groupRef);
@@ -260,7 +292,7 @@ class ConversationPanel extends React.Component{
 		})
 		.then((response) => response.json())
 		.then((responseJson) => {
-
+			console.log('channel selected - '+msgCountId);
 			if(!self.isEmptyObject(self.props.channel)){
 				configConsts.socket.emit('leave conversation', self.props.channel);
 			}
@@ -289,6 +321,7 @@ class ConversationPanel extends React.Component{
 			})
 			.then((response) => {
 
+			console.log('channel selected - msg count processing');
 				let userUrl = configConsts.chatServerDomain + 'users';
 
 				const resUser =	fetch(userUrl, {
@@ -325,10 +358,11 @@ class ConversationPanel extends React.Component{
 									}
 									options.push(otherUsers[key].email);
 								}
-								console.log(msgCountRecords);
-								this.props.loadUsersAndSuggestions(otherUsers, msgCountRecords, options);
+			console.log('IN SELECT CHANNEL========================');
+			console.log(msgCountRecords);
+			console.log('IN SELECT CHANNEL========================');
+								this.props.loadChannel(otherUsers, msgCountRecords, options, chId, msgList, directedTo)
 							});
-						self.props.channelSelect(chId, msgList, directedTo);
 
 			      	});
 			});
@@ -445,7 +479,6 @@ class ConversationPanel extends React.Component{
         let logoutButton = <Logout logoutAndRedirect={this.logoutAndRedirect}/>;
 
         if (this.props.users === undefined || this.props.users.length == 0) {
-        	console.log('1');
 			return (
 				<Container className="container-fluid">
 					<Row>
@@ -456,7 +489,6 @@ class ConversationPanel extends React.Component{
 				</Container>
 				)
 		} else if(!this.isEmptyObject(this.props.channel)){
-        	console.log('2');
 			return (
 				<Container className="container-fluid">
 					<Row>
@@ -510,7 +542,6 @@ class ConversationPanel extends React.Component{
 				</Container>
 			); 
 		} else {
-        	console.log('3');
 			return (
 				<Container className="container-fluid">
 					<Row>
@@ -588,6 +619,7 @@ const mapDispatchToProps = (dispatch) => {
         loadUsers: (users) => dispatch(reloadUsers(users)),
         loadTags: (tags) => dispatch(establishTags(tags)),
         loadUsersAndSuggestions: (users, msgCounts, suggestions) => dispatch(setUsersAndSuggestions(users, msgCounts, suggestions)),
+        loadChannel: (users, msgCounts, suggestions, channel, messages, channelName) => dispatch(setUsersSuggestionsChannel(users, msgCounts, suggestions, channel, messages, channelName)),
     };
 };
 

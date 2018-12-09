@@ -1,4 +1,5 @@
 import React from 'react';
+import decode from 'jwt-decode';
 import ReactDOM from 'react-dom';
 import User from './User';
 import 'whatwg-fetch';
@@ -12,17 +13,22 @@ class ListOfUsers extends React.Component{
 		this.userListItems = new Map();
 	}
 
-	componentWillMount(){
+	render(){
+		const currentUserData = decode(this.props.authToken);
 		let msgCounts = this.props.msgCounts;
 		let users = this.props.users
+
 		for (let key in this.props.users){
-			for(let $i = 0; $i < this.props.msgCounts; $i++){
-				this.props.users[key].userMsgCount = (this.props.users[key].userMsgCount._id == this.props.msgCounts[$i].sender) ? [this.props.msgCounts[$i]] : this.props.users[key].userMsgCount;
+			for(let $i = 0; $i < this.props.msgCounts.length; $i++){
+
+				if(this.props.users[key]._id == this.props.msgCounts[$i].sender && currentUserData._id == this.props.msgCounts[$i].recipient){
+
+					this.props.users[key].userMsgCount = [];
+					this.props.users[key].userMsgCount.push(this.props.msgCounts[$i]);
+				} 
 			}
 		}
-	}
 
-	render(){
 		return(
 			<div>
 				<ul ref={(ref) => this.userList = ref}>

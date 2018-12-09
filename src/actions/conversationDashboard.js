@@ -49,3 +49,15 @@ export function setUsersAndSuggestions(users, msgCounts, suggestions) {
         suggestions
     };
 }
+
+export function setUsersSuggestionsChannel(users, msgCounts, suggestions, channel, messages, channelName) {
+    return {
+        type: 'SET_USERS_SUGG_CHANNEL',
+        users,
+        msgCounts,
+        suggestions,
+        channel, 
+        messages, 
+        channelName
+    };
+}

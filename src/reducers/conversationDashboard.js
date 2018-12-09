@@ -46,10 +46,20 @@ export default (state=initialState, action) => {
             };
         case 'SET_USERS_AND_SUGG':
             return {
-            	...state,
-			    users: action.users,
-			    msgCounts: action.msgCounts,
-			    suggestions: action.suggestions
+                ...state,
+                users: action.users,
+                msgCounts: action.msgCounts,
+                suggestions: action.suggestions
+            };
+        case 'SET_USERS_SUGG_CHANNEL':
+            return {
+                ...state,
+                users: action.users,
+                msgCounts: action.msgCounts,
+                suggestions: action.suggestions,
+                channel: action.channel,
+                messages: action.messages,
+                channelName: action.channelName
             };
         default:
             return state;
