@@ -462,36 +462,38 @@ class ConversationPanel extends React.Component{
     	this.props.loadTags(tags);
     }
  
-    handleCreateGroup(event) {
+    async handleCreateGroup(event) {
 
 		event.preventDefault();
-    	let userIds=[];
-		let channelName = event.target.groupName.value;
-
+    	const userIds=[];
+		const channelName = event.target.groupName.value;
+		const url = configConsts.chatServerDomain + 'channel';
 
 		for (let key in this.props.tags){
 			userIds.push(this.props.tags[key].id);
 		}
-		var url = configConsts.chatServerDomain + 'channel';
-		return fetch(url, {
-		  method: 'POST',
-		  headers: {
-		    'Authorization': this.props.authToken,
-		    'Content-Type': 'application/json'
-		  },
-		  body: JSON.stringify({
-		    channelName: channelName,
-		    channelUsers:userIds,
-		    type:'group'
-		  })
-		})
-		.then((response) => response.json())
-		.then((responseJson) => {
-			this.addGroupChannel(responseJson);
-      	})
-		.catch((error) => {
+
+		try {
+			const newGroupData = await axios.post(url, 
+				{
+				    channelName: channelName,
+				    channelUsers:userIds,
+				    type:'group'
+				},
+				{ 
+					'headers': {
+						'Authorization': this.props.authToken,
+						'Content-Type': 'application/json'
+					}
+				}
+			);
+
+			const newGroup = newGroupData.data;
+			this.addGroupChannel(newGroup);
+		} catch (error) {
 			console.log(error);
-		});
+			console.error(error);
+		}
     }
 
 	render(){
