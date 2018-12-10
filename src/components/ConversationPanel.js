@@ -375,7 +375,7 @@ class ConversationPanel extends React.Component{
 				}
 				options.push(users[key].email);
 			}
-			
+
 			this.props.loadChannel(users, msgCountRecords, options, chId, msgList, directedTo)
 
 		} catch(error) {
@@ -384,34 +384,41 @@ class ConversationPanel extends React.Component{
 		}
 	}
 
-	selectGroupChannel(event, groupChannelId, groupName){
-		let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+groupChannelId;
+	async selectGroupChannel(event, groupChannelId, groupName){
+		const url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+groupChannelId;
 		var self = this;
 
 		this.removeSelectedIndicator(this.userRef);
 		this.removeSelectedIndicator(this.groupRef);
 		
 		event.currentTarget.style.backgroundColor = configConsts.selectedUser;
-		return fetch(url, {
-		  method: 'GET',
-		  headers: {
-		    'Authorization': this.props.authToken,
-		    'Content-Type': 'application/json'
-		  }
-		})
-		.then((response) => response.json())
-		.then((responseJson) => {
+
+
+		try {
+
+			const msgsInChannelResults = await axios.get(url, 
+				{ 
+					'headers': 
+					{
+						'Authorization': this.props.authToken,
+						'Content-Type': 'application/json'
+					}
+				}
+			);
+
+			const msgsInChannel = msgsInChannelResults.data;
+
 			if(!self.isEmptyObject(self.props.channel)){
 				configConsts.socket.emit('leave conversation', self.props.channel[0]._id);
 			}
 			configConsts.socket.emit('enter conversation', groupChannelId);
 
-			this.props.channelSelect(groupChannelId, responseJson, groupName);
-      	})
-		.catch((error) => {
+			this.props.channelSelect(groupChannelId, msgsInChannel, groupName);
+
+		} catch (error){
 			console.log(error);
 			console.error(error);
-		});
+		}
 	}
 
 	onOpenModal(){
