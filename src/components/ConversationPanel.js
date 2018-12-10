@@ -1,17 +1,18 @@
 import decode from 'jwt-decode';
 import React from 'react';
 import axios from 'axios';
+import { findDOMNode }  from 'react-dom';
+import { Route, Redirect, browserHistory }  from 'react-router';
+import { Container, Row, Col, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import { connect } from 'react-redux';
+
 import Channel from './Channel';
 import Login from './Login';
 import Logout from './Logout';
 import ListOfUsers from './ListOfUsers';
 import ListOfGroups from './ListOfGroups';
-import { Route, Redirect, browserHistory }  from 'react-router';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
 import * as configConsts from '../config/config';
-import { findDOMNode }  from 'react-dom';
-import { Container, Row, Col, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button, Form, FormGroup, Label, Input } from 'reactstrap';
-import { connect } from 'react-redux';
 import { channelPicked, establishMsgs, retrieveGroupChannels, setModalOpenStatus, reloadUsers, establishTags, setUsersAndSuggestions, setUsersSuggestionsChannel } from '../actions/conversationDashboard';
 
 var NotificationSystem = require('react-notification-system');
@@ -192,7 +193,7 @@ class ConversationPanel extends React.Component{
 			const msgCountsUrl = configConsts.chatServerDomain + 'msgCount';
 
 			try {
-				
+
 				const msgCountsData = await axios.get(msgCountsUrl, 
 					{ 
 						'headers': 
