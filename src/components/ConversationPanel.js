@@ -53,56 +53,52 @@ class ConversationPanel extends React.Component{
 
 		configConsts.socket.on('refresh users', (users) => {
 			const currentUser = decode(this.props.authToken);
-			// console.log(currentUser._id);
 			this.refreshUsers(users, currentUser._id);
 	    });
 
-		configConsts.socket.on('refresh messages', (conversation, senderId) => {
-			let url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+conversation;
-			return fetch(url, {
-			  method: 'GET',
-			  headers: {
-			    'Authorization': this.props.authToken,
-			    'Content-Type': 'application/json'
-			  }
-			})
-			.then((response) => response.json())
-			.then((responseJson) => {
+		configConsts.socket.on('refresh messages', async (conversation, senderId) => {
+			const url = configConsts.chatServerDomain + 'messages/getMessagesInChannel?&channelId='+conversation;
+			const msgCountResetUrl = configConsts.chatServerDomain + 'messages/resetMessageCount';
+			const currentUser = decode(this.props.authToken);
 
+  			try {
+				const msgsInChannelResponse = await axios.get(url, 
+					{ 'headers': {
+						'Authorization': this.props.authToken,
+						'Content-Type': 'application/json'
+					}
+				});
 
-				let t = this.props.authToken;
-				const currentUser = decode(this.props.authToken);
-				var msgCountResetUrl = configConsts.chatServerDomain + 'messages/resetMessageCount';
+				const msgsInChannel = msgsInChannelResponse.data;
 
 				//ensure that, if the current channel is selected, if the current user(recipient) receives a new
 				//message, the count remains set to zero.
 				if(this.props.channel == conversation && senderId != currentUser._id) {
 
-					let testCapture = fetch(msgCountResetUrl, {
-					  method: 'POST',
-					  headers: {
-					    'Authorization': t,
-					    'Content-Type': 'application/json'
-					  },
-						body: JSON.stringify({
+					const msgsResponseData = await axios.post(msgCountResetUrl, 
+						{
 							channelId: conversation,
 							recipientId:currentUser._id,
-						})
-					})
-					.then((response) => {
-						this.props.pullMsgs(responseJson);
-					});
-				} else {
+						},
+						{ 
+							'headers': {
+								'Authorization': this.props.authToken,
+								'Content-Type': 'application/json'
+							}
+						}
+					);
 
-					this.props.pullMsgs(responseJson);
+					this.props.pullMsgs(msgsInChannel);
+
+				} 
+				else {
+
+					this.props.pullMsgs(msgsInChannel);
 				}
-
-
-	      	})
-			.catch((error) => {
+			} catch(error) {
 				console.log(error);
 				console.error(error);
-			});
+			}
 	    });
 
 		configConsts.socket.on('signal message', (usersIdsInChannel, senderId) => {
@@ -209,7 +205,7 @@ class ConversationPanel extends React.Component{
 					msgCountRecords.push(msgCounts[key]);
 				}
 			}
-			
+
 			for(let key in users){
 				options.push(users[key].email);
 			}
