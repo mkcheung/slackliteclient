@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { Component } from 'react';
 import 'whatwg-fetch';
 import { Route, Redirect }  from 'react-router';
-import Modal from 'react-responsive-modal';
-import ConversationPanel from './ConversationPanel';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
-import * as configConsts from '../config/config';
+import Modal from 'react-responsive-modal';
 import { Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 var NotificationSystem = require('react-notification-system');
 import { connect } from 'react-redux';
+
+import ConversationPanel from './ConversationPanel';
+import * as configConsts from '../config/config';
 import { openRegistrationModal, setIsModalOpenStatus } from '../actions/login';
 
 const renderMergedProps = (component, ...rest) => {
@@ -24,7 +25,7 @@ const PropsRoute = ({ component, ...rest }) => {
   );
 }
 
-class Login extends React.Component {
+class Login extends Component {
 	constructor(){
 		super();
 
