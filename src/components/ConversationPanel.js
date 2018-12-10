@@ -103,7 +103,6 @@ class ConversationPanel extends React.Component{
 
 		configConsts.socket.on('signal message', (usersIdsInChannel, senderId) => {
 
-			console.log('msg signal');
 			const currentUser = decode(this.props.authToken);
 			for (let i = 0; i < usersIdsInChannel.length; i++){
 
@@ -116,7 +115,6 @@ class ConversationPanel extends React.Component{
 		});
 
 		configConsts.socket.on('refresh groups', () => {
-			console.log('refresh group signal');
 			this.getGroupChannels();
 		});
 	}
@@ -126,34 +124,36 @@ class ConversationPanel extends React.Component{
 			this.props.history.push('/');
 		}
 
-		var userUrl = configConsts.chatServerDomain + 'users';
+		const userUrl = configConsts.chatServerDomain + 'users';
+		const msgCountsUrl = configConsts.chatServerDomain + 'msgCount';
 
 		try{
 			await this.getGroupChannels();
 
-			const resUser =	await fetch(userUrl, {
-					  method: 'GET',
-					  headers: {
-					    'Authorization': this.props.authToken,
-					    'Content-Type': 'application/json'
-					  }
-					});
+			const resUser = await axios.get(userUrl, 
+				{ 
+					'headers': 
+					{
+						'Authorization': this.props.authToken,
+						'Content-Type': 'application/json'
+					}
+				}
+			);
 
-
-
-
-			var msgCountsUrl = configConsts.chatServerDomain + 'msgCount';
-			const msgCountsData = await axios.get(msgCountsUrl, { 'headers': {
-					    'Authorization': this.props.authToken,
-					    'Content-Type': 'application/json'
-					  }
-				});
+			const msgCountsData = await axios.get(msgCountsUrl, 
+				{ 
+					'headers': 
+					{
+						'Authorization': this.props.authToken,
+						'Content-Type': 'application/json'
+					}
+				}
+			);
 			const msgCounts = msgCountsData.data;
+			const users = resUser.data;
 
-			let theUsers = await resUser.json().then((users) => {
+			this.getUserRelatedChannels(users, msgCounts);
 
-				let testRun = this.getUserRelatedChannels(users, msgCounts);
-	      	});
 		} catch(error) {
 			console.log(error);
 			console.error(error);
