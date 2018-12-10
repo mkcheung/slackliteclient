@@ -279,108 +279,109 @@ class ConversationPanel extends React.Component{
 	}
 
 	async selectChannel(event, userid, email, msgCountId){
-console.log(userid +' ' + email +' ' + msgCountId);
+
 		event.preventDefault();	
-		console.log('Channel select - MCID: ' + msgCountId)
 		let targetClass = event.target;
 		this.removeSelectedIndicator(this.userRef);
 		this.removeSelectedIndicator(this.groupRef);
 		event.currentTarget.style.backgroundColor = configConsts.selectedUser;
 
-  		var channelUsers = '&message_user_ids='+userid;
-  		var channelType = '&singular=true';
-  		var channelName = '&channelName='+email;
-  		var requestUrl = configConsts.chatServerDomain + 'channels/getChannel?'+channelUsers+channelType+channelName;
-  		var msgCountResetUrl = configConsts.chatServerDomain + 'messages/resetMessageCount';
-		var self = this;
-		let t = this.props.authToken;
-		return fetch(requestUrl, {
-		  method: 'GET',
-		  headers: {
-		    'Authorization': this.props.authToken,
-		    'Content-Type': 'application/json'
-		  }
-		})
-		.then((response) => response.json())
-		.then((responseJson) => {
-			console.log('channel selected - '+msgCountId);
+  		const channelUsers = '&message_user_ids='+userid;
+  		const channelType = '&singular=true';
+  		const channelName = '&channelName='+email;
+  		const requestUrl = configConsts.chatServerDomain + 'channels/getChannel?'+channelUsers+channelType+channelName;
+  		const msgCountResetUrl = configConsts.chatServerDomain + 'messages/resetMessageCount';
+		const userUrl = configConsts.chatServerDomain + 'users';
+		const associatedChannelsUrl = configConsts.chatServerDomain + 'channel';
+		const self = this;
+
+		try {
+
+			const channelResponse = await axios.get(requestUrl, 
+				{ 
+					'headers': 
+					{
+						'Authorization': this.props.authToken,
+						'Content-Type': 'application/json'
+					}
+				}
+			);
+
+			const channel = channelResponse.data;
+
 			if(!self.isEmptyObject(self.props.channel)){
 				configConsts.socket.emit('leave conversation', self.props.channel);
 			}
-			configConsts.socket.emit('enter conversation', responseJson._id);
+			configConsts.socket.emit('enter conversation', channel._id);
 
 			let directedTo = null;
-			const usersInChannel = responseJson.channelUsers;
+			const usersInChannel = channel.channelUsers;
 			for(let key in usersInChannel){
 				if(usersInChannel[key]._id === userid){
 					directedTo = usersInChannel[key].firstName + ' ' + usersInChannel[key].lastName;
 					break;
 				}
 			}
+			const chId = channel._id;
+			const msgList = channel.messages;
 
-			let chId = responseJson._id;
-			let msgList = responseJson.messages;
-			let testCapture = fetch(msgCountResetUrl, {
-			  method: 'POST',
-			  headers: {
-			    'Authorization': t,
-			    'Content-Type': 'application/json'
-			  },
-				body: JSON.stringify({
+			const msgsResponseData = await axios.post(msgCountResetUrl, 
+				{
 					msgCountId: msgCountId,
-				})
-			})
-			.then((response) => {
+				},
+				{ 
+					'headers': {
+						'Authorization': this.props.authToken,
+						'Content-Type': 'application/json'
+					}
+				}
+			);
 
-			console.log('channel selected - msg count processing');
-				let userUrl = configConsts.chatServerDomain + 'users';
+			const resUser = await axios.get(userUrl, 
+				{ 
+					'headers': 
+					{
+						'Authorization': this.props.authToken,
+						'Content-Type': 'application/json'
+					}
+				}
+			);
 
-				const resUser =	fetch(userUrl, {
-					  method: 'GET',
-					  headers: {
-					    'Authorization': this.props.authToken,
-					    'Content-Type': 'application/json'
-					  }
-					}).then((response) => response.json())
-					.then((otherUsers) => {
+			const users = resUser.data;
 
-						let associatedChannelsUrl = configConsts.chatServerDomain + 'channel';
+			const userChannelResults = await axios.get(associatedChannelsUrl, 
+				{ 
+					'headers': 
+					{
+						'Authorization': this.props.authToken,
+						'Content-Type': 'application/json'
+					}
+				}
+			);
 
-						const userChannels = fetch(associatedChannelsUrl, {
-							  method: 'GET',
-							  headers: {
-							    'Authorization': this.props.authToken,
-							    'Content-Type': 'application/json'
-							  }
-							}).then((response) => response.json())
-							.then((channelsJson) => {
+			const userChannels = userChannelResults.data;
 
-								let options = [];
-								let msgCountRecords = [];
-								const currentUser = decode(this.props.authToken);
+			let options = [];
+			let msgCountRecords = [];
+			const currentUser = decode(this.props.authToken);
 
-								for(let key in otherUsers){
-									let umcs = otherUsers[key].userMsgCount;
-									for(let umcKey in umcs){
-										if(umcs[umcKey].recipient == currentUser._id){
+			for(let key in users){
+				let umcs = users[key].userMsgCount;
+				for(let umcKey in umcs){
+					if(umcs[umcKey].recipient == currentUser._id){
 
-											msgCountRecords.push(umcs[umcKey]);
-										}
-									}
-									options.push(otherUsers[key].email);
-								}
-			console.log('IN SELECT CHANNEL========================');
-			console.log(msgCountRecords);
-			console.log('IN SELECT CHANNEL========================');
-								this.props.loadChannel(otherUsers, msgCountRecords, options, chId, msgList, directedTo)
-							});
+						msgCountRecords.push(umcs[umcKey]);
+					}
+				}
+				options.push(users[key].email);
+			}
+			
+			this.props.loadChannel(users, msgCountRecords, options, chId, msgList, directedTo)
 
-			      	});
-			});
-      	})
-		.catch((error) => {
+		} catch(error) {
 			console.log(error);
-		});
+			console.error(error);
+		}
 	}
 
 	selectGroupChannel(event, groupChannelId, groupName){
