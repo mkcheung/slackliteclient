@@ -182,7 +182,7 @@ class ConversationPanel extends React.Component{
 	}
 
 	async refreshUsers(users, currentUserId){
-		console.log('pop');
+
 		if (this.props.checkIfLoggedIn()){
 
 			let options = [];
@@ -190,33 +190,40 @@ class ConversationPanel extends React.Component{
 
 
 			const msgCountsUrl = configConsts.chatServerDomain + 'msgCount';
-			const msgCountsData = await axios.get(msgCountsUrl, 
-				{ 
-					'headers': 
-					{
-						'Authorization': this.props.authToken,
-						'Content-Type': 'application/json'
+
+			try {
+				
+				const msgCountsData = await axios.get(msgCountsUrl, 
+					{ 
+						'headers': 
+						{
+							'Authorization': this.props.authToken,
+							'Content-Type': 'application/json'
+						}
+					}
+				);
+
+				const msgCounts = msgCountsData.data;
+
+				for(let key in msgCounts){
+					if(msgCounts[key].recipient == currentUserId && this.props.channel == msgCounts[key].channel){
+						msgCounts[key].messageCount = 0;
+						msgCountRecords.push(msgCounts[key]);
+					} else if(msgCounts[key].recipient == currentUserId){
+						msgCountRecords.push(msgCounts[key]);
 					}
 				}
-			);
 
-			const msgCounts = msgCountsData.data;
-
-			for(let key in msgCounts){
-				if(msgCounts[key].recipient == currentUserId && this.props.channel == msgCounts[key].channel){
-					msgCounts[key].messageCount = 0;
-					msgCountRecords.push(msgCounts[key]);
-				} else if(msgCounts[key].recipient == currentUserId){
-					msgCountRecords.push(msgCounts[key]);
+				for(let key in users){
+					options.push(users[key].email);
 				}
+
+				this.props.loadUsersAndSuggestions(users, msgCountRecords, options);
+
+			} catch (error) {
+				console.log(error);
+				console.error(error);
 			}
-
-			for(let key in users){
-				options.push(users[key].email);
-			}
-
-			this.props.loadUsersAndSuggestions(users, msgCountRecords, options);
-
 		}
 	}
 
