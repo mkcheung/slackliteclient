@@ -189,12 +189,17 @@ class ConversationPanel extends React.Component{
 			let msgCountRecords = [];
 
 
-			var msgCountsUrl = configConsts.chatServerDomain + 'msgCount';
-			const msgCountsData = await axios.get(msgCountsUrl, { 'headers': {
-					    'Authorization': this.props.authToken,
-					    'Content-Type': 'application/json'
-					  }
-				});
+			const msgCountsUrl = configConsts.chatServerDomain + 'msgCount';
+			const msgCountsData = await axios.get(msgCountsUrl, 
+				{ 
+					'headers': 
+					{
+						'Authorization': this.props.authToken,
+						'Content-Type': 'application/json'
+					}
+				}
+			);
+
 			const msgCounts = msgCountsData.data;
 
 			for(let key in msgCounts){
@@ -225,22 +230,24 @@ class ConversationPanel extends React.Component{
 
 	async getGroupChannels(){
 		const url = configConsts.chatServerDomain + 'channels/getGroupChannels';
-		const res =	await fetch(url, {
-		  method: 'GET',
-		  headers: {
-		    'Authorization': this.props.authToken,
-		    'Content-Type': 'application/json'
-		  }
-		});
 
-		let groupChannels = await res.json().then((responseJson) => {
-			let groups = [];
-			for(let key in responseJson){
-				groups.push(responseJson[key]);
+		const groupChannelsResponse = await axios.get(url, 
+			{ 
+				'headers': 
+				{
+					'Authorization': this.props.authToken,
+					'Content-Type': 'application/json'
+				}
 			}
+		);
 
-			this.props.pullGroups(groups);
-      	});
+		const groupChannels = groupChannelsResponse.data;
+		const groups = [];
+		for(let key in groupChannels){
+			groups.push(groupChannels[key]);
+		}
+
+		this.props.pullGroups(groups);
 	}
 
 	logoutAndRedirect(){
