@@ -25,10 +25,9 @@ export function processNewMessage(url, authToken, channelType, channelId, messag
 					}
 				}
 			);
-	  		console.log(processNewMsgResp);
+			
 	  		if(processNewMsgResp){
 				configConsts.socket.emit('new message', channelId, currUserId);
-				console.log('here 4');
 				dispatch(textInput(''));
 	  		}
     	} catch(error) {
