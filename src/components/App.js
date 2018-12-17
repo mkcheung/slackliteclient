@@ -8,21 +8,6 @@ import { isTokenExpired, getTokenExpirationDate } from '../util/AuthServices';
 import { connect } from 'react-redux';
 import { performLogin, performLogout } from '../actions/app';
 
-const renderMergedProps = (component, ...rest) => {
-  const finalProps = Object.assign({}, ...rest);
-  return (
-    React.createElement(component, finalProps)
-  );
-}
-
-const PropsRoute = ({ component, ...rest }) => {
-  return (
-    <Route {...rest} render={routeProps => {
-      return renderMergedProps(component, routeProps, rest);
-    }}/>
-  );
-}
-
 class App extends Component {
 
   constructor(){
@@ -50,28 +35,12 @@ class App extends Component {
   }
 
   render() {
-        return (
-          <div>
-            <Switch>
-              <PropsRoute 
-                exact 
-                path='/' 
-                component={Login} 
-                authToken={this.props.authToken}
-                setAuthentication={this.setAuthentication}
-                checkIfLoggedIn={this.checkIfLoggedIn}
-              />
-              <PropsRoute 
-                path='/conversations' 
-                component={ConversationPanel} 
-                authToken={this.props.authToken}
-                checkIfLoggedIn={this.checkIfLoggedIn}
-                logout={this.logout}
-              />
-              <Route component={NotFound}/>
-            </Switch>
-          </div>
-        );
+    return (
+      <div>
+        <Route exact path="/" render={(loginProps) => (<Login authToken={this.props.authToken} setAuthentication={this.setAuthentication} checkIfLoggedIn={this.checkIfLoggedIn}/>)}/>
+        <Route exact path="/conversations" render={(convPanelProps) => (<ConversationPanel authToken={this.props.authToken} logout={this.logout} checkIfLoggedIn={this.checkIfLoggedIn}/>)}/>
+      </div>
+    );
   }
 }
 

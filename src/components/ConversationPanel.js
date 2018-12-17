@@ -2,6 +2,7 @@ import decode from 'jwt-decode';
 import React, { Component } from 'react';
 import axios from 'axios';
 import { findDOMNode }  from 'react-dom';
+import { withRouter } from 'react-router-dom';
 import { Route, Redirect, browserHistory }  from 'react-router';
 import { Container, Row, Col, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import { connect } from 'react-redux';
@@ -16,20 +17,6 @@ import * as configConsts from '../config/config';
 import { channelPicked, establishMsgs, retrieveGroupChannels, setModalOpenStatus, reloadUsers, establishTags, setUsersAndSuggestions, setUsersSuggestionsChannel } from '../actions/conversationDashboard';
 
 var NotificationSystem = require('react-notification-system');
-
-const renderMergedProps = (component, ...rest) => {
-  const finalProps = Object.assign({}, ...rest);
-  return (
-    React.createElement(component, finalProps)
-  );
-}
-const PropsRoute = ({ component, ...rest }) => {
-  return (
-    <Route {...rest} render={routeProps => {
-      return renderMergedProps(component, routeProps, rest);
-    }}/>
-  );
-}
 
 class ConversationPanel extends Component{
 
@@ -652,4 +639,7 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ConversationPanel);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ConversationPanel));
+
+
+

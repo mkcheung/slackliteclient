@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import 'whatwg-fetch';
 import { Route, Redirect }  from 'react-router';
+import { withRouter } from 'react-router-dom';
 import 'react-responsive-modal/lib/react-responsive-modal.css';
 import Modal from 'react-responsive-modal';
 import { Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button, Form, FormGroup, Label, Input } from 'reactstrap';
@@ -11,23 +12,9 @@ import ConversationPanel from './ConversationPanel';
 import * as configConsts from '../config/config';
 import { openRegistrationModal, setIsModalOpenStatus } from '../actions/login';
 
-const renderMergedProps = (component, ...rest) => {
-  const finalProps = Object.assign({}, ...rest);
-  return (
-    React.createElement(component, finalProps)
-  );
-}
-const PropsRoute = ({ component, ...rest }) => {
-  return (
-    <Route {...rest} render={routeProps => {
-      return renderMergedProps(component, routeProps, rest);
-    }}/>
-  );
-}
-
 class Login extends Component {
-	constructor(){
-		super();
+	constructor(props){
+		super(props);
 
 		this.notificationSystem= null,
 		this.handleSubmit=this.handleSubmit.bind(this);
@@ -35,6 +22,7 @@ class Login extends Component {
 		this.onOpenModal=this.onOpenModal.bind(this);
 		this.onCloseModal=this.onCloseModal.bind(this);
 		this.toggle = this.toggle.bind(this);
+		this.checkIfLoggedIn = props.checkIfLoggedIn.bind(this);
 	}
 
 	componentWillMount(){
@@ -216,5 +204,6 @@ const mapDispatchToProps = (dispatch) => {
         toggleModalOnOff: (isOpen) => dispatch(setIsModalOpenStatus(isOpen)),
     };
 };
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Login));
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+
