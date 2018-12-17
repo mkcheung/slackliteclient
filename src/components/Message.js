@@ -6,7 +6,7 @@ import * as configConsts from '../config/config';
 class Message extends React.Component{
 	render(){
 		const currentUserData = decode(this.props.authToken);
-		if(this.props.details.user._id == currentUserData._id) {
+		if(this.props.details.user._id === currentUserData._id) {
 
 			return(
 				<li style={configConsts.currentUserMessageStyle}>

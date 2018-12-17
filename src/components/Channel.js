@@ -31,7 +31,7 @@ class Channel extends React.Component{
 	}
 
 	render(){
-		const {channelId, channelName, index, messages} = this.props;
+		const {channelId, channelName, messages} = this.props;
 		return (
 			<div >
 				<div className="row">

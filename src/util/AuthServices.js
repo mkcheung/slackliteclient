@@ -1,5 +1,5 @@
 import decode from 'jwt-decode';
-import { BrowserRouter, Route, Link, Switch, browserHistory  } from 'react-router-dom';
+import { browserHistory  } from 'react-router-dom';
 
 export function login() {
   browserHistory.push('/login');

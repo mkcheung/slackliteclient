@@ -1,5 +1,4 @@
 import decode from 'jwt-decode';
-import Message from './Message';
 import React from 'react';
 import './channel.css'
 import * as configConsts from '../config/config';
@@ -35,7 +34,7 @@ class ChatInput extends React.Component{
 	}
 
 	onEnterPress(event){
-		if(event.keyCode == 13 && event.shiftKey == false) {
+		if(event.keyCode === 13 && event.shiftKey === false) {
 			event.preventDefault();
 			this.submitHandler(event);
 		}

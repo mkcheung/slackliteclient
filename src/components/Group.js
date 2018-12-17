@@ -1,17 +1,15 @@
 import React from 'react';
 import decode from 'jwt-decode';
-import { Badge, Button } from 'reactstrap';
-import * as configConsts from '../config/config';
+import { Badge } from 'reactstrap';
 
 class Group extends React.Component{
 	render(){
 		const currentUserData = decode(this.props.authToken);
-		const {details, index} = this.props;
+		const {details} = this.props;
 
 		let msgCount = '';
-		let listOfUsers = details.userMsgCount;
 		if(details.userMsgCount && details.userMsgCount.length > 0
-			&& (details.userMsgCount[0].sender != currentUserData._id)){
+			&& (details.userMsgCount[0].sender !== currentUserData._id)){
 			let userMsgCount = details.userMsgCount.pop();
 			msgCount = (userMsgCount.messageCount > 0) ? userMsgCount.messageCount : '';
 		}

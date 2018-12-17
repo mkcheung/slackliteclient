@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Group from './Group';
 import 'whatwg-fetch';
 import { WithContext as ReactTags } from 'react-tag-input';

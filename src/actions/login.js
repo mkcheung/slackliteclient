@@ -1,5 +1,3 @@
-import * as configConsts from '../config/config';
-
 export function openRegistrationModal(open) {
     return {
         type: 'OPEN_REG_MODAL',
