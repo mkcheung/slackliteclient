@@ -159,15 +159,17 @@ class ConversationPanel extends Component{
 		let msgCountRecords = [];
 		const currentUser = decode(this.props.authToken);
 
-		for(let key in msgCounts){
-			if(msgCounts[key].recipient == currentUser._id){
-				msgCountRecords.push(msgCounts[key]);
-			}
-		}
+		const resMsgCountRes = msgCounts.map(function(msgCount){
 
-		for(let key in otherUsers){
-			options.push(otherUsers[key].email);
-		}
+			if(msgCount.recipient == currentUser._id){
+				msgCountRecords.push(msgCount);
+			}
+		});
+
+		const resOtherUsers = otherUsers.map(function(otherUser){
+
+			options.push(otherUser.email);
+		});
 
 		this.props.loadUsersAndSuggestions(otherUsers, msgCountRecords, options);
 	}
