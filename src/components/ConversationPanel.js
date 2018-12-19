@@ -92,14 +92,17 @@ class ConversationPanel extends Component{
 		configConsts.socket.on('signal message', (usersIdsInChannel, senderId) => {
 
 			const currentUser = decode(this.props.authToken);
-			for (let i = 0; i < usersIdsInChannel.length; i++){
+			const userList = this.userRef.userList;
+			const alertSound = this.alertSound;
 
-				if(currentUser._id == usersIdsInChannel[i]){
-					let msgFromUserFlag = findDOMNode(this.userRef.userList).getElementsByClassName('list-group-item channel_'+senderId);
+			const sample = usersIdsInChannel.map(function(userIdInChannel){
+
+				if(currentUser._id == userIdInChannel){
+					let msgFromUserFlag = findDOMNode(userList).getElementsByClassName('list-group-item channel_'+senderId);
 					msgFromUserFlag[0].style.backgroundColor = configConsts.incomingMessage;
-					this.alertSound.play();
+					alertSound.play();
 				}
-			}
+			});
 		});
 
 		configConsts.socket.on('refresh groups', () => {
