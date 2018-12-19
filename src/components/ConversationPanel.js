@@ -214,7 +214,6 @@ class ConversationPanel extends Component{
 					options.push(user.email);
 				});
 
-				console.log('refreshUsers');
 				this.props.loadUsersAndSuggestions(users, msgCountRecords, options);
 
 			} catch (error) {
