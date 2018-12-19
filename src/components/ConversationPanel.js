@@ -197,20 +197,24 @@ class ConversationPanel extends Component{
 				);
 
 				const msgCounts = msgCountsData.data;
+				const presentChannel = this.props.channel;
+				
+				const resMsgCountRes = msgCounts.map(function(msgCount){
 
-				for(let key in msgCounts){
-					if(msgCounts[key].recipient == currentUserId && this.props.channel == msgCounts[key].channel){
-						msgCounts[key].messageCount = 0;
-						msgCountRecords.push(msgCounts[key]);
-					} else if(msgCounts[key].recipient == currentUserId){
-						msgCountRecords.push(msgCounts[key]);
+					if(msgCount.recipient == currentUserId && presentChannel == msgCount.channel){
+						msgCount.messageCount = 0;
+						msgCountRecords.push(msgCount);
+					} else if(msgCount.recipient == currentUserId){
+						msgCountRecords.push(msgCount);
 					}
-				}
+				});
 
-				for(let key in users){
-					options.push(users[key].email);
-				}
+				const resUsers = users.map(function(user){
 
+					options.push(user.email);
+				});
+
+				console.log('refreshUsers');
 				this.props.loadUsersAndSuggestions(users, msgCountRecords, options);
 
 			} catch (error) {
